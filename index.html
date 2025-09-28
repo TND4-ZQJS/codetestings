@@ -472,7 +472,7 @@ function resizeCanvas() {
 
   // If modal is open and sigTarget exists, prefer the stored PNG for that role.
   // Otherwise fall back to the current canvas content.
-  const storageKey = sigTarget ? "sig_" + sigTarget : null;
+  const storageKey = sigTarget ? "mhse_sig_" + sigTarget : null;
   const savedFromStorage = storageKey ? localStorage.getItem(storageKey) : null;
   const sourceData = savedFromStorage || sigCanvas.toDataURL();
 
@@ -530,7 +530,7 @@ $("sigClear").addEventListener("click", ()=>{
 
   if (sigTarget) {
     // remove saved signature
-    localStorage.removeItem("sig_" + sigTarget);
+    localStorage.removeItem("mhse_sig_" + sigTarget);
 
     // reset preview back to "Tap to Sign (…) "
     $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${
@@ -552,14 +552,14 @@ $("sigDone").addEventListener("click", () => {
   // Always take snapshot from the canvas (even if unchanged)
   const dataURL = sigCanvas.toDataURL("image/png");
 
-  if (signaturePad.isEmpty() && !localStorage.getItem("sig_" + sigTarget)) {
+  if (signaturePad.isEmpty() && !localStorage.getItem("mhse_sig_" + sigTarget)) {
     // If no strokes and nothing saved before → treat as empty
     const label = sigTarget.charAt(0).toUpperCase() + sigTarget.slice(1);
     $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${label})</span>`;
-    localStorage.removeItem("sig_" + sigTarget);
+    localStorage.removeItem("mhse_sig_" + sigTarget);
   } else {
     // Save whatever is currently visible on the canvas
-    localStorage.setItem("sig_" + sigTarget, dataURL);
+    localStorage.setItem("mhse_sig_" + sigTarget, dataURL);
     $("preview_" + sigTarget).innerHTML = `<img alt="Signature ${sigTarget}" src="${dataURL}">`;
   }
 
@@ -570,7 +570,7 @@ $("sigDone").addEventListener("click", () => {
 
 /* Clear preview buttons + restore previews on load */
 $("clearPreviewOwner").addEventListener("click", ()=>{
-  localStorage.removeItem("sig_owner");
+  localStorage.removeItem("mhse_sig_owner");
   $("preview_owner").innerHTML = `<span>Tap to Sign (Owner)</span>`;
 
   // also clear from canvas if modal currently showing owner
@@ -578,14 +578,14 @@ $("clearPreviewOwner").addEventListener("click", ()=>{
 });
 
 $("clearPreviewWitness").addEventListener("click", ()=>{
-  localStorage.removeItem("sig_witness");
+  localStorage.removeItem("mhse_sig_witness");
   $("preview_witness").innerHTML = `<span>Tap to Sign (Witness)</span>`;
 
   if (sigTarget === "witness") signaturePad.clear();
 });
 
 $("clearPreviewTrustee").addEventListener("click", ()=>{
-  localStorage.removeItem("sig_trustee");
+  localStorage.removeItem("mhse_sig_trustee");
   $("preview_trustee").innerHTML = `<span>Tap to Sign (Trustee)</span>`;
 
   if (sigTarget === "trustee") signaturePad.clear();
@@ -593,7 +593,7 @@ $("clearPreviewTrustee").addEventListener("click", ()=>{
 
 window.addEventListener("DOMContentLoaded", ()=>{
   ["owner","witness","trustee"].forEach(role=>{
-    const saved = localStorage.getItem("sig_"+role);
+    const saved = localStorage.getItem("mhse_sig_"+role);
     if(saved){
       $("preview_"+role).innerHTML = `<img alt="Signature ${role}" src="${saved}">`;
     }
@@ -687,7 +687,7 @@ mapRadioGroupToPdfCheckboxes("Banktype", [
     /* --------- SIGNATURE IMAGE EMBEDDING (embedPng + drawImage) --------- */
 
 // Owner signature FillPDF
-const sigOwner = localStorage.getItem("sig_owner");
+const sigOwner = localStorage.getItem("mhse_sig_owner");
 if (sigOwner) {
   try {
     const imgOwner = await pdfDoc.embedPng(sigOwner);
@@ -720,7 +720,7 @@ if (sigOwner) {
 }
 
 // Witness signature FillPDF
-const sigWitness = localStorage.getItem("sig_witness");
+const sigWitness = localStorage.getItem("mhse_sig_witness");
 if (sigWitness) {
   try {
     const imgWitness = await pdfDoc.embedPng(sigWitness);
@@ -754,7 +754,7 @@ if (sigWitness) {
 
 
 // Trustee signature FillPDF
-const sigTrustee = localStorage.getItem("sig_trustee");
+const sigTrustee = localStorage.getItem("mhse_sig_trustee");
 if (sigTrustee) {
   try {
     const imgTrustee = await pdfDoc.embedPng(sigTrustee);
