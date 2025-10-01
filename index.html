@@ -679,10 +679,6 @@ amendmentField.setText(wrapTextByWordsWithPrefix(val, 60));
   safeSetField(form, fieldName, localStorage.getItem(fieldName));
   });
     
-    // Policyowner signature
-        const pages = pdfDoc.getPages();
-    const pageIndex = Math.min(2, pages.length - 1); // Page 3 (index 2); adjust if needed
-    const page = pages[pageIndex];
 
 // Owner signature
 const sigPolicyowner = localStorage.getItem("ata_sig_policyowner");
