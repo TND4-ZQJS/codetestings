@@ -610,13 +610,13 @@ $("sigDone").addEventListener("click", () => {
 
 
 /* Clear preview buttons + restore previews on load */
-$("clearPreviewPolicyOwner").addEventListener("click", ()=>{
+$("clearPreviewPolicyowner").addEventListener("click", ()=>{
   localStorage.removeItem("ata_sig_policyowner");
   $("preview_policyowner").innerHTML = `<span>Tap to Sign 
   (Proposed Life Insured / Policyowner)</span>`;
 
   // also clear from canvas if modal currently showing owner
-  if (sigTarget === "owner") signaturePad.clear();
+  if (sigTarget === "policyowner") signaturePad.clear();
 });
 
 $("clearPreviewWitness").addEventListener("click", ()=>{
@@ -689,7 +689,7 @@ const sigPolicyowner = localStorage.getItem("ata_sig_policyowner");
 if (sigPolicyowner) {
   try {
     const imgPolicyowner = await pdfDoc.embedPng(sigPolicyowner);
-    const { width, height } = imgOwner.size();
+    const { width, height } = imgPolicyowner.size();
 
     const previewEl = document.getElementById("preview_policyowner");
     const boxW = previewEl.offsetWidth;
