@@ -285,6 +285,7 @@
 
 <div id="saveStatus">Saved</div>
 
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
 <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
 
 <script>
@@ -447,82 +448,155 @@ ccDigits.forEach((el, idx)=>{
   }
 })();
 
-/* ---------- Signature modal (shared) ---------- */
-const sigModal = $("sigModal"), sigCanvas = $("sigCanvas"), sigModalContent = $("sigModalContent");
-const saveSigBtn = $("sigDone"), clearSigBtn = $("sigClear"), cancelSigBtn = $("sigCancel");
-const previews = { cardholder: $("preview_cardholder"), witness: $("preview_witness") };
-let activeSigField = null;
-let sigCtx = sigCanvas.getContext('2d');
-let drawing = false;
+/* ---------- SIGNATURE MODAL LOGIC ---------- */
+let sigTarget = null;
+const sigModal = $("sigModal");
+const sigCanvas = $("sigCanvas");
+const sigCtx = sigCanvas.getContext("2d");
 
-function resizeSigCanvas(){
-  const dpr = window.devicePixelRatio || 1;
-  const cssWidth = Math.min(window.innerWidth * 0.95, 700);
-  const cssHeight = cssWidth / 3.3;
-  sigCanvas.width = cssWidth * dpr;
-  sigCanvas.height = cssHeight * dpr;
-  sigCanvas.style.width = cssWidth + 'px';
-  sigCanvas.style.height = cssHeight + 'px';
-  sigCtx.setTransform(dpr,0,0,dpr,0,0);
-  sigCtx.lineWidth = 2.5;
-  sigCtx.lineCap = 'round';
-  sigCtx.strokeStyle = '#000';
-}
-function openSig(field){
-  activeSigField = field;
-  sigModal.style.display = 'flex';
-  resizeSigCanvas();
-  sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);
-  const saved = localStorage.getItem(field + '_sig');
-  if(saved){
+const signaturePad = new SignaturePad(sigCanvas, {
+  minWidth: 0.7,              // Thin lines when moving fast
+  maxWidth: 2.5,              // Thicker when moving slowly
+  velocityFilterWeight: 0.6,  // More responsive to speed, but still smooth
+  minDistance: 3,             // Capture detail without too many points
+  throttle: 16,               // ~60 FPS, smooth without lag
+  penColor: "black",          // Signature color
+  backgroundColor: "rgba(0,0,0,0)" // Transparent background
+  //minWidth: 1,
+  //maxWidth: 3,
+  //penColor: "black",
+  //backgroundColor: "rgba(0,0,0,0)"
+});
+
+function resizeCanvas() {
+  const ratio = Math.max(window.devicePixelRatio || 1, 1);
+
+  // If modal is open and sigTarget exists, prefer the stored PNG for that role.
+  // Otherwise fall back to the current canvas content.
+  const storageKey = sigTarget ? "epp_sig_" + sigTarget : null;
+  const savedFromStorage = storageKey ? localStorage.getItem(storageKey) : null;
+  const sourceData = savedFromStorage || sigCanvas.toDataURL();
+
+  // Set canvas size in device pixels (prevent subpixel rounding issues)
+  sigCanvas.width = Math.floor(sigCanvas.offsetWidth * ratio);
+  sigCanvas.height = Math.floor(sigCanvas.offsetHeight * ratio);
+
+  // Reset transform and set scale so drawing coordinates are in CSS pixels
+  sigCtx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+  // CSS size (in drawing units now) for layout math
+  const cssW = sigCanvas.offsetWidth;
+  const cssH = sigCanvas.offsetHeight;
+
+  // If we have an image source (PNG), draw it proportionally and center it
+  if (sourceData && typeof sourceData === "string" && sourceData.indexOf("data:image") === 0) {
     const img = new Image();
-    img.src = saved;
-    img.onload = ()=> sigCtx.drawImage(img,0,0,sigCanvas.width/(window.devicePixelRatio||1), sigCanvas.height/(window.devicePixelRatio||1));
+    img.onload = () => {
+      // clear using CSS coordinate space
+      sigCtx.clearRect(0, 0, cssW, cssH);
+
+      // Scale image proportionally to fit inside canvas area (CSS pixels)
+      const scale = Math.min(cssW / img.width, cssH / img.height);
+      const x = (cssW - img.width * scale) / 2;
+      const y = (cssH - img.height * scale) / 2;
+
+      // draw using CSS units (ctx is already scaled by devicePixelRatio)
+      sigCtx.drawImage(img, x, y, img.width * scale, img.height * scale);
+    };
+    img.src = sourceData;
+  } else {
+    // No image to draw — clear the pad so it's ready for a new signature
+    signaturePad.clear();
   }
 }
-function closeSig(){ sigModal.style.display = 'none'; activeSigField = null; }
+window.addEventListener("resize", resizeCanvas);
 
-sigCanvas.addEventListener('mousedown', e=>{ drawing=true; sigCtx.beginPath(); sigCtx.moveTo(e.offsetX,e.offsetY); });
-sigCanvas.addEventListener('mousemove', e=>{ if(!drawing) return; sigCtx.lineTo(e.offsetX,e.offsetY); sigCtx.stroke(); });
-sigCanvas.addEventListener('mouseup', ()=>drawing=false);
-sigCanvas.addEventListener('mouseleave', ()=>drawing=false);
-sigCanvas.addEventListener('touchstart', e=>{ e.preventDefault(); const t=e.touches[0]; const rect=sigCanvas.getBoundingClientRect(); sigCtx.beginPath(); sigCtx.moveTo(t.clientX-rect.left, t.clientY-rect.top); drawing=true; }, {passive:false});
-sigCanvas.addEventListener('touchmove', e=>{ e.preventDefault(); if(!drawing) return; const t=e.touches[0]; const rect=sigCanvas.getBoundingClientRect(); sigCtx.lineTo(t.clientX-rect.left, t.clientY-rect.top); sigCtx.stroke(); }, {passive:false});
-sigCanvas.addEventListener('touchend', ()=>drawing=false);
+function openSig(target) {
+  sigTarget = target;
 
-saveSigBtn.addEventListener('click', ()=>{
-  if(!activeSigField) return;
-  const dataURL = sigCanvas.toDataURL();
-  localStorage.setItem(activeSigField + '_sig', dataURL);
-  previews[activeSigField].innerHTML = `<img src="${dataURL}">`;
-  closeSig();
-  showSaveStatus();
-});
-clearSigBtn.addEventListener('click', ()=>{
-  sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);
-  localStorage.removeItem(activeSigField + '_sig');
-  previews[activeSigField].innerHTML = `<span>Tap to Sign (${activeSigField==='witness'?'Witness':'Cardholder'})</span>`;
-});
-cancelSigBtn.addEventListener('click', closeSig);
+  if (target === "cardholder") {
+    $("sigModalTitle").textContent = "Sign: Card Holder";
+  } else {
+    $("sigModalTitle").textContent = "Sign: Witness";
+  }
 
-/* Clear preview buttons */
-$("clearPreviewCardholder").addEventListener("click", ()=>{
-  localStorage.removeItem('cardholder_sig');
-  previews.cardholder.innerHTML = `<span>Tap to Sign (Cardholder)</span>`;
-});
-$("clearPreviewWitness").addEventListener("click", ()=>{
-  localStorage.removeItem('witness_sig');
-  previews.witness.innerHTML = `<span>Tap to Sign (Witness)</span>`;
-});
+  sigModal.style.display = "block";
+  sigModal.setAttribute("aria-hidden", "false");
 
-/* On load - restore previews if saved */
-function restoreSignaturePreviews(){
-  const c = localStorage.getItem('cardholder_sig');
-  const w = localStorage.getItem('witness_sig');
-  if(c) previews.cardholder.innerHTML = `<img src="${c}">`;
-  if(w) previews.witness.innerHTML = `<img src="${w}">`;
+  requestAnimationFrame(() => {
+    resizeCanvas();
+  });
 }
-restoreSignaturePreviews();
+
+$("sigClear").addEventListener("click", ()=>{
+  signaturePad.clear();
+
+  if (sigTarget) {
+    // remove saved signature
+    localStorage.removeItem("ata_sig_" + sigTarget);
+
+    // reset preview back to "Tap to Sign (…) "
+    $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${
+      sigTarget.charAt(0).toUpperCase() + sigTarget.slice(1)
+    })</span>`;
+  }
+});
+  
+$("sigCancel").addEventListener("click", closeSigModal);
+function closeSigModal(){
+  sigModal.style.display = "none";
+  sigModal.setAttribute("aria-hidden", "true");
+  sigTarget = null;
+}
+  
+$("sigDone").addEventListener("click", () => {
+  if (!sigTarget) return;
+
+  // Always take snapshot from the canvas (even if unchanged)
+  const dataURL = sigCanvas.toDataURL("image/png");
+
+  if (signaturePad.isEmpty() && !localStorage.getItem("ata_sig_" + sigTarget)) {
+    // If no strokes and nothing saved before → treat as empty
+    const label = sigTarget.charAt(0).toUpperCase() + sigTarget.slice(1);
+    $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${label})</span>`;
+    localStorage.removeItem("epp_sig_" + sigTarget);
+  } else {
+    // Save whatever is currently visible on the canvas
+    localStorage.setItem("epp_sig_" + sigTarget, dataURL);
+    $("preview_" + sigTarget).innerHTML = `<img alt="Signature ${sigTarget}" src="${dataURL}">`;
+  }
+
+  closeSigModal();
+});
+
+
+
+/* Clear preview buttons + restore previews on load */
+$("clearPreviewCardholder").addEventListener("click", ()=>{
+  localStorage.removeItem("ata_sig_policyowner");
+  $("preview_cardholder").innerHTML = `<span>Tap to Sign 
+  (Card Holder)</span>`;
+
+  // also clear from canvas if modal currently showing owner
+  if (sigTarget === "cardholder") signaturePad.clear();
+});
+
+$("clearPreviewWitness").addEventListener("click", ()=>{
+  localStorage.removeItem("epp_sig_witness");
+  $("preview_witness").innerHTML = `<span>Tap to Sign (Witness)</span>`;
+
+  if (sigTarget === "witness") signaturePad.clear();
+});
+
+
+window.addEventListener("DOMContentLoaded", ()=>{
+  ["cardholder","witness"].forEach(role=>{
+    const saved = localStorage.getItem("epp_sig_"+role);
+    if(saved){
+      $("preview_"+role).innerHTML = `<img alt="Signature ${role}" src="${saved}">`;
+    }
+  });
+});
 
 /* ---------- Signed date selects (same as amendment filler) ---------- */
 (function populateDateSelectors(){
@@ -615,6 +689,7 @@ async function fillPDF(){
     const bytes = await res.arrayBuffer();
     const pdfDoc = await PDFLib.PDFDocument.load(bytes);
     const form = pdfDoc.getForm();
+    const page = pages[1];
 
     // Section 1
     safeSetText(form, "Cardholder_Name", $("Cardholder_Name").value || "");
@@ -687,27 +762,71 @@ async function fillPDF(){
     safeSetText(form, "Witness_Name", $("Witness_Name").value || "");
     safeSetText(form, "Witness_NRIC", $("Witness_NRIC").value || "");
 
-    // Embed signatures from localStorage if present
-    const pages = pdfDoc.getPages();
-    const pageForSign = pages[Math.min(1, pages.length-1)]; // attempt to place on page 2 or last page
-    const poSig = localStorage.getItem('cardholder_sig');
-    const wSig = localStorage.getItem('witness_sig');
+    // Owner signature
+const sigCardholder = localStorage.getItem("epp_sig_cardholder");
+if (sigPolicyowner) {
+  try {
+    const imgCardholder = await pdfDoc.embedPng(sigCardholder);
+    const { width, height } = imgCardholder.size();
 
-    const sigWidth = 160, sigHeight = 50; // default embed size, adjust if needed
-    if(poSig){
-      try{
-        const pngBytes = await fetch(poSig).then(r=>r.arrayBuffer());
-        const png = await pdfDoc.embedPng(pngBytes);
-        pageForSign.drawImage(png, { x: 30, y: 100, width: sigWidth, height: sigHeight });
-      }catch(e){ console.warn("Cardholder signature embed failed:", e); }
-    }
-    if(wSig){
-      try{
-        const pngBytes2 = await fetch(wSig).then(r=>r.arrayBuffer());
-        const png2 = await pdfDoc.embedPng(pngBytes2);
-        pageForSign.drawImage(png2, { x: 340, y: 99, width: sigWidth, height: sigHeight });
-      }catch(e){ console.warn("Witness signature embed failed:", e); }
-    }
+    const previewEl = document.getElementById("preview_cardholder");
+    const boxW = previewEl.offsetWidth;
+    const boxH = previewEl.offsetHeight;
+
+    const scale = Math.min(boxW / width, boxH / height);
+    let drawW = width * scale;
+    let drawH = height * scale;
+
+    const factor = 0.35;    // scale
+    const posX = 380;         // X position on PDF
+    const posY = 145;        // Y position on PDF
+
+    drawW *= factor;
+    drawH *= factor;
+
+    page.drawImage(imgCardholder, {
+      x: posX,
+      y: posY,
+      width: drawW,
+      height: drawH
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+// Witness signature
+const sigWitness = localStorage.getItem("epp_sig_witness");
+if (sigWitness) {
+  try {
+    const imgWitness = await pdfDoc.embedPng(sigWitness);
+    const { width, height } = imgWitness.size();
+
+    const previewEl = document.getElementById("preview_witness");
+    const boxW = previewEl.offsetWidth;
+    const boxH = previewEl.offsetHeight;
+
+    const scale = Math.min(boxW / width, boxH / height);
+    let drawW = width * scale;
+    let drawH = height * scale;
+
+    const factor = 0.35;    // scale
+    const posX = 50;         // X position on PDF
+    const posY = 145;        // Y position on PDF
+
+    drawW *= factor;
+    drawH *= factor;
+
+    page.drawImage(imgWitness, {
+      x: posX,
+      y: posY,
+      width: drawW,
+      height: drawH
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}
 
      
     // Flatten form fields before saving
