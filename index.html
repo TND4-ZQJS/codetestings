@@ -453,7 +453,7 @@ ccDigits.forEach((el, idx)=>{
 
 /* ---------- Signature modal (shared) ---------- */
 const sigModal = $("sigModal"), sigCanvas = $("sigCanvas"), sigModalContent = $("sigModalContent");
-const saveSigBtn = $("saveSigBtn"), clearSigBtn = $("clearSigBtn"), cancelSigBtn = $("cancelSigBtn");
+const saveSigBtn = $("sigDone"), clearSigBtn = $("sigClear"), cancelSigBtn = $("sigCancel");
 const previews = { cardholder: $("preview_cardholder"), witness: $("preview_witness") };
 let activeSigField = null;
 let sigCtx = sigCanvas.getContext('2d');
