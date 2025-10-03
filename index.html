@@ -523,7 +523,7 @@ function openSig(target) {
     resizeCanvas();
 
     const saved = localStorage.getItem("epp_sig_" + sigTarget);
-    if (saved) {
+    if (saved && saved.trim() !== "") {
       const img = new Image();
       img.onload = () => {
         sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
@@ -531,7 +531,7 @@ function openSig(target) {
       };
       img.src = saved;
     } else {
-      signaturePad.clear(); // blank if nothing saved
+      signaturePad.clear();  // <– always blank if nothing saved
     }
   });
 }
@@ -580,16 +580,20 @@ $("sigDone").addEventListener("click", () => {
 
 
 /* Clear preview buttons + restore previews on load */
-// Clear Cardholder
-$("clearPreviewCardholder").addEventListener("click", () => {
+$("clearPreviewCardholder").addEventListener("click", ()=>{
   localStorage.removeItem("epp_sig_cardholder");
-  $("preview_cardholder").innerHTML = `<span>Tap to Sign (Cardholder)</span>`;
+  $("preview_cardholder").innerHTML = `<span>Tap to Sign 
+  (Card Holder)</span>`;
+
+  // also clear from canvas if modal currently showing owner
+  if (sigTarget === "cardholder") signaturePad.clear();
 });
 
-// Clear Witness
-$("clearPreviewWitness").addEventListener("click", () => {
+$("clearPreviewWitness").addEventListener("click", ()=>{
   localStorage.removeItem("epp_sig_witness");
   $("preview_witness").innerHTML = `<span>Tap to Sign (Witness)</span>`;
+
+  if (sigTarget === "witness") signaturePad.clear();
 });
 
 
