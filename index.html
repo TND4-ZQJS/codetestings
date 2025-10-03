@@ -513,26 +513,18 @@ window.addEventListener("resize", resizeCanvas);
 
 function openSig(target) {
   sigTarget = target;
-  $("sigModalTitle").textContent =
-    target === "cardholder" ? "Sign: Cardholder" : "Sign: Witness";
+
+  if (target === "cardholder") {
+    $("sigModalTitle").textContent = "Sign: Card Holder";
+  } else {
+    $("sigModalTitle").textContent = "Sign: Witness";
+  }
 
   sigModal.style.display = "block";
   sigModal.setAttribute("aria-hidden", "false");
 
   requestAnimationFrame(() => {
     resizeCanvas();
-
-    const saved = localStorage.getItem("epp_sig_" + sigTarget);
-    if (saved && saved.trim() !== "") {
-      const img = new Image();
-      img.onload = () => {
-        sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
-        sigCtx.drawImage(img, 0, 0, sigCanvas.width, sigCanvas.height);
-      };
-      img.src = saved;
-    } else {
-      signaturePad.clear();  // <– always blank if nothing saved
-    }
   });
 }
 
@@ -541,7 +533,7 @@ $("sigClear").addEventListener("click", ()=>{
 
   if (sigTarget) {
     // remove saved signature
-    localStorage.removeItem("epp_sig_" + sigTarget);
+    localStorage.removeItem("ata_sig_" + sigTarget);
 
     // reset preview back to "Tap to Sign (…) "
     $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${
@@ -563,7 +555,7 @@ $("sigDone").addEventListener("click", () => {
   // Always take snapshot from the canvas (even if unchanged)
   const dataURL = sigCanvas.toDataURL("image/png");
 
-  if (signaturePad.isEmpty() && !localStorage.getItem("epp_sig_" + sigTarget)) {
+  if (signaturePad.isEmpty() && !localStorage.getItem("ata_sig_" + sigTarget)) {
     // If no strokes and nothing saved before → treat as empty
     const label = sigTarget.charAt(0).toUpperCase() + sigTarget.slice(1);
     $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${label})</span>`;
@@ -581,7 +573,7 @@ $("sigDone").addEventListener("click", () => {
 
 /* Clear preview buttons + restore previews on load */
 $("clearPreviewCardholder").addEventListener("click", ()=>{
-  localStorage.removeItem("epp_sig_cardholder");
+  localStorage.removeItem("ata_sig_policyowner");
   $("preview_cardholder").innerHTML = `<span>Tap to Sign 
   (Card Holder)</span>`;
 
@@ -863,7 +855,7 @@ function resetAll(){
   // remove policy nodes and recreate
   policiesContainer.innerHTML = ""; policyCount = 0; addPolicyBtn.disabled=false; addPolicy();
   // restore previews empty
-  previews.cardholder.innerHTML = `<span>Tap to Sign (Card Holder)</span>`;
+  previews.cardholder.innerHTML = `<span>Tap to Sign (Cardholder)</span>`;
   previews.witness.innerHTML = `<span>Tap to Sign (Witness)</span>`;
 }
 
