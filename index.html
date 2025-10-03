@@ -555,7 +555,7 @@ $("sigDone").addEventListener("click", () => {
   // Always take snapshot from the canvas (even if unchanged)
   const dataURL = sigCanvas.toDataURL("image/png");
 
-  if (signaturePad.isEmpty() && !localStorage.getItem("ata_sig_" + sigTarget)) {
+  if (signaturePad.isEmpty() && !localStorage.getItem("epp_sig_" + sigTarget)) {
     // If no strokes and nothing saved before → treat as empty
     const label = sigTarget.charAt(0).toUpperCase() + sigTarget.slice(1);
     $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${label})</span>`;
