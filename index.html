@@ -513,18 +513,26 @@ window.addEventListener("resize", resizeCanvas);
 
 function openSig(target) {
   sigTarget = target;
-
-  if (target === "cardholder") {
-    $("sigModalTitle").textContent = "Sign: Card Holder";
-  } else {
-    $("sigModalTitle").textContent = "Sign: Witness";
-  }
+  $("sigModalTitle").textContent =
+    target === "cardholder" ? "Sign: Cardholder" : "Sign: Witness";
 
   sigModal.style.display = "block";
   sigModal.setAttribute("aria-hidden", "false");
 
   requestAnimationFrame(() => {
     resizeCanvas();
+
+    const saved = localStorage.getItem("epp_sig_" + sigTarget);
+    if (saved && saved.trim() !== "") {
+      const img = new Image();
+      img.onload = () => {
+        sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+        sigCtx.drawImage(img, 0, 0, sigCanvas.width, sigCanvas.height);
+      };
+      img.src = saved;
+    } else {
+      signaturePad.clear();  // <– always blank if nothing saved
+    }
   });
 }
 
@@ -855,7 +863,7 @@ function resetAll(){
   // remove policy nodes and recreate
   policiesContainer.innerHTML = ""; policyCount = 0; addPolicyBtn.disabled=false; addPolicy();
   // restore previews empty
-  previews.cardholder.innerHTML = `<span>Tap to Sign (Cardholder)</span>`;
+  previews.cardholder.innerHTML = `<span>Tap to Sign (Card Holder)</span>`;
   previews.witness.innerHTML = `<span>Tap to Sign (Witness)</span>`;
 }
 
