@@ -533,7 +533,7 @@ $("sigClear").addEventListener("click", ()=>{
 
   if (sigTarget) {
     // remove saved signature
-    localStorage.removeItem("ata_sig_" + sigTarget);
+    localStorage.removeItem("epp_sig_" + sigTarget);
 
     // reset preview back to "Tap to Sign (…) "
     $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${
