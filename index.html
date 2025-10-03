@@ -573,7 +573,7 @@ $("sigDone").addEventListener("click", () => {
 
 /* Clear preview buttons + restore previews on load */
 $("clearPreviewCardholder").addEventListener("click", ()=>{
-  localStorage.removeItem("ata_sig_cardholder");
+  localStorage.removeItem("epp_sig_cardholder");
   $("preview_cardholder").innerHTML = `<span>Tap to Sign 
   (Card Holder)</span>`;
 
