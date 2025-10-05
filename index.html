@@ -337,19 +337,64 @@ function setupPolicyOwnerCheckbox(ownerInput, cardholderNameInput, checkbox) {
   }
 }
 
+function attachAutoSave(el) {
+  if (!el || !el.id) return;
+  
+  // Restore previously saved value
+  const saved = localStorage.getItem(el.id);
+  if (saved !== null) {
+    if (el.type === "checkbox") el.checked = (saved === "true");
+    else el.value = saved;
+  }
+
+  // Auto-save on input
+  el.addEventListener("input", () => {
+    // Uppercase rules for certain fields
+    if (
+      el.closest(".section1") ||
+      el.closest(".section5") ||
+      (el.closest(".policy") && el.id.includes("_OwnerName"))
+    ) {
+      if (
+        el.type !== "number" &&
+        el.inputMode !== "numeric" &&
+        el.tagName.toLowerCase() !== "select"
+      ) {
+        el.value = el.value.toUpperCase();
+      }
+    }
+    debounceSave(() => saveElValue(el), 120)();
+  });
+
+  // Checkbox should save on change
+  if (el.type === "checkbox") {
+    el.addEventListener("change", () => saveElValue(el));
+  }
+}
+
 function createPolicyEntry(index){
   const wrap = document.createElement("div");
   wrap.className = "policy";
   wrap.dataset.index = index;
-  const title = document.createElement("h3"); title.textContent = `Policy ${index}`; wrap.appendChild(title);
+  const title = document.createElement("h3");
+  title.textContent = `Policy ${index}`;
+  wrap.appendChild(title);
 
-  const pNoLabel = document.createElement("label"); pNoLabel.textContent = "Policy No.";
-  const pNoInput = document.createElement("input"); pNoInput.type="text"; pNoInput.id=`Paymentfor_PolicyNo${index}`; pNoInput.placeholder=`Enter Policy Number`;
-  pNoLabel.appendChild(pNoInput); wrap.appendChild(pNoLabel);
-  
-  // New checkbox
-  const sameOwnerRow = document.createElement("div"); sameOwnerRow.className = "row";
-  const sameOwnerLabel = document.createElement("label"); sameOwnerLabel.className = "inline";
+  // Policy No.
+  const pNoLabel = document.createElement("label");
+  pNoLabel.textContent = "Policy No.";
+  const pNoInput = document.createElement("input");
+  pNoInput.type="text";
+  pNoInput.id=`Paymentfor_PolicyNo${index}`;
+  pNoInput.placeholder=`Enter Policy Number`;
+  pNoLabel.appendChild(pNoInput);
+  wrap.appendChild(pNoLabel);
+
+  // Same as Cardholder checkbox
+  const sameOwnerRow = document.createElement("div");
+  sameOwnerRow.className = "row";
+  const sameOwnerLabel = document.createElement("label");
+  sameOwnerLabel.className = "inline";
   const sameOwnerCheckbox = document.createElement("input");
   sameOwnerCheckbox.type = "checkbox";
   sameOwnerCheckbox.id = `sameAsCardholder_${index}`;
@@ -358,67 +403,130 @@ function createPolicyEntry(index){
   sameOwnerRow.appendChild(sameOwnerLabel);
   wrap.appendChild(sameOwnerRow);
 
-  const ownerLabel = document.createElement("label"); ownerLabel.textContent = "Name of Policyowner";
-  const ownerInput = document.createElement("input"); ownerInput.type="text"; ownerInput.id=`Paymentfor_PolicyNo${index}_OwnerName`; ownerInput.placeholder=`Enter Policyowner's Name`;
-  ownerLabel.appendChild(ownerInput); wrap.appendChild(ownerLabel);
+  // Owner Name
+  const ownerLabel = document.createElement("label");
+  ownerLabel.textContent = "Name of Policyowner";
+  const ownerInput = document.createElement("input");
+  ownerInput.type="text";
+  ownerInput.id=`Paymentfor_PolicyNo${index}_OwnerName`;
+  ownerInput.placeholder=`Enter Policyowner's Name`;
+  ownerLabel.appendChild(ownerInput);
+  wrap.appendChild(ownerLabel);
 
-  const relLabel = document.createElement("label"); relLabel.textContent = "Relationship to Cardholder";
-  const relSelect = document.createElement("select"); relSelect.id=`Paymentfor_PolicyNo${index}_Relationship`;
+  // Relationship
+  const relLabel = document.createElement("label");
+  relLabel.textContent = "Relationship to Cardholder";
+  const relSelect = document.createElement("select");
+  relSelect.id=`Paymentfor_PolicyNo${index}_Relationship`;
   ["","Ownself","Spouse","Children","Parents","Grandparents","Siblings","Employer/Employee"].forEach(opt=>{
-    const o=document.createElement("option"); o.value=opt; o.textContent=opt===""?"-- choose --":opt; relSelect.appendChild(o);
+    const o=document.createElement("option");
+    o.value=opt;
+    o.textContent=opt===""?"-- choose --":opt;
+    relSelect.appendChild(o);
   });
-  relLabel.appendChild(relSelect); wrap.appendChild(relLabel);
+  relLabel.appendChild(relSelect);
+  wrap.appendChild(relLabel);
 
-  const premLabel = document.createElement("label"); premLabel.textContent = "First Premium (RM)";
-  const premInput = document.createElement("input"); premInput.type="text"; premInput.id=`Paymentfor_PolicyNo${index}_FirstPremium`; premInput.placeholder="e.g. 1200.00";
-  premLabel.appendChild(premInput); wrap.appendChild(premLabel);
+  // First Premium
+  const premLabel = document.createElement("label");
+  premLabel.textContent = "First Premium (RM)";
+  const premInput = document.createElement("input");
+  premInput.type="text";
+  premInput.id=`Paymentfor_PolicyNo${index}_FirstPremium`;
+  premInput.placeholder="e.g. 1200.00";
+  premLabel.appendChild(premInput);
+  wrap.appendChild(premLabel);
 
+  // Remove button (for index > 1)
   if(index>1){
-    const rem=document.createElement("button"); rem.type="button"; rem.className="secondary"; rem.textContent="Remove"; rem.style.marginTop="8px";
+    const rem=document.createElement("button");
+    rem.type="button";
+    rem.className="secondary";
+    rem.textContent="Remove";
+    rem.style.marginTop="8px";
     rem.addEventListener("click", ()=>{
+      // clear localStorage keys
       localStorage.removeItem(`sameAsCardholder_${index}`);
       localStorage.removeItem(`Paymentfor_PolicyNo${index}`);
       localStorage.removeItem(`Paymentfor_PolicyNo${index}_OwnerName`);
       localStorage.removeItem(`Paymentfor_PolicyNo${index}_Relationship`);
       localStorage.removeItem(`Paymentfor_PolicyNo${index}_FirstPremium`);
-      wrap.remove(); policyCount--; addPolicyBtn.disabled=false; reorganizePolicyIndices();
+      // remove DOM
+      wrap.remove();
+      policyCount--;
+      localStorage.setItem("policyCount", policyCount);
+      addPolicyBtn.disabled = policyCount >= MAX_POLICIES;
+      reorganizePolicyIndices();
       showSaveStatus();
     });
     wrap.appendChild(rem);
   }
 
-  // Set up the capitalization and checkbox logic
+  // Checkbox sync logic
   const cardholderNameInput = $("Cardholder_Name");
   setupPolicyOwnerCheckbox(ownerInput, cardholderNameInput, sameOwnerCheckbox);
-  ownerInput.addEventListener("input", (e) => {
-    e.target.value = e.target.value.toUpperCase();
-    debounceSave(() => saveElValue(e.target), 120)();
-  });
+
+  // Auto-save setup
+  attachAutoSave(pNoInput);
+  attachAutoSave(ownerInput);
+  attachAutoSave(relSelect);
+  attachAutoSave(premInput);
+  attachAutoSave(sameOwnerCheckbox);
 
   return wrap;
 }
-function addPolicy(){ if(policyCount>=MAX_POLICIES) return; policyCount++; policiesContainer.appendChild(createPolicyEntry(policyCount)); if(policyCount>=MAX_POLICIES) addPolicyBtn.disabled=true; }
+
+function addPolicy(){
+  if(policyCount>=MAX_POLICIES) return;
+  policyCount++;
+  policiesContainer.appendChild(createPolicyEntry(policyCount));
+  localStorage.setItem('policyCount', policyCount);
+  addPolicyBtn.disabled = policyCount >= MAX_POLICIES;
+  showSaveStatus();
+}
+
 function reorganizePolicyIndices(){
   const nodes = Array.from(policiesContainer.querySelectorAll(".policy"));
-  policyCount = nodes.length;
   nodes.forEach((n, idx)=> {
-    const oldIdx = n.dataset.index;
+    const oldIdx = parseInt(n.dataset.index, 10);
     const newIdx = idx+1;
-    n.dataset.index=newIdx; n.querySelector("h3").textContent=`Policy ${newIdx}`;
-    
-    // Update all IDs and re-wire listeners
-    const pNo = n.querySelector(`#Paymentfor_PolicyNo${oldIdx}`); if(pNo){ pNo.id=`Paymentfor_PolicyNo${newIdx}`; pNo.placeholder=`Paymentfor_PolicyNo${newIdx}`;}
-    const owner = n.querySelector(`#Paymentfor_PolicyNo${oldIdx}_OwnerName`); if(owner){ owner.id=`Paymentfor_PolicyNo${newIdx}_OwnerName`; owner.placeholder=`Paymentfor_PolicyNo${newIdx}_OwnerName`;}
-    const rel = n.querySelector(`#Paymentfor_PolicyNo${oldIdx}_Relationship`); if(rel){ rel.id=`Paymentfor_PolicyNo${newIdx}_Relationship`;}
-    const prem = n.querySelector(`#Paymentfor_PolicyNo${oldIdx}_FirstPremium`); if(prem){ prem.id=`Paymentfor_PolicyNo${newIdx}_FirstPremium`; prem.placeholder=`Paymentfor_PolicyNo${newIdx}_FirstPremium`;}
-    const checkbox = n.querySelector(`#sameAsCardholder_${oldIdx}`);
-    if(checkbox) {
-        checkbox.id = `sameAsCardholder_${newIdx}`;
-        setupPolicyOwnerCheckbox(owner, $("Cardholder_Name"), checkbox);
+    if (oldIdx === newIdx) return;
+
+    // Move storage data
+    const fields = [
+      {old:`Paymentfor_PolicyNo${oldIdx}`, new:`Paymentfor_PolicyNo${newIdx}`},
+      {old:`Paymentfor_PolicyNo${oldIdx}_OwnerName`, new:`Paymentfor_PolicyNo${newIdx}_OwnerName`},
+      {old:`Paymentfor_PolicyNo${oldIdx}_Relationship`, new:`Paymentfor_PolicyNo${newIdx}_Relationship`},
+      {old:`Paymentfor_PolicyNo${oldIdx}_FirstPremium`, new:`Paymentfor_PolicyNo${newIdx}_FirstPremium`},
+      {old:`sameAsCardholder_${oldIdx}`, new:`sameAsCardholder_${newIdx}`}
+    ];
+    fields.forEach(f=>{
+      const v = localStorage.getItem(f.old);
+      if (v !== null) {
+        localStorage.setItem(f.new, v);
+        localStorage.removeItem(f.old);
+      }
+    });
+
+    // Update IDs
+    n.dataset.index = newIdx;
+    n.querySelector("h3").textContent = `Policy ${newIdx}`;
+    const pNo = n.querySelector(`#Paymentfor_PolicyNo${oldIdx}`); if(pNo) pNo.id = `Paymentfor_PolicyNo${newIdx}`;
+    const owner = n.querySelector(`#Paymentfor_PolicyNo${oldIdx}_OwnerName`); if(owner) owner.id = `Paymentfor_PolicyNo${newIdx}_OwnerName`;
+    const rel = n.querySelector(`#Paymentfor_PolicyNo${oldIdx}_Relationship`); if(rel) rel.id = `Paymentfor_PolicyNo${newIdx}_Relationship`;
+    const prem = n.querySelector(`#Paymentfor_PolicyNo${oldIdx}_FirstPremium`); if(prem) prem.id = `Paymentfor_PolicyNo${newIdx}_FirstPremium`;
+    const cb = n.querySelector(`#sameAsCardholder_${oldIdx}`);
+    if(cb) {
+      cb.id = `sameAsCardholder_${newIdx}`;
+      setupPolicyOwnerCheckbox(owner, $("Cardholder_Name"), cb);
     }
   });
+
+  policyCount = nodes.length;
+  localStorage.setItem('policyCount', policyCount);
   addPolicyBtn.disabled = policyCount >= MAX_POLICIES;
 }
+
 addPolicyBtn.addEventListener("click", addPolicy);
 addPolicy(); // start with 1
 
