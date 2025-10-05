@@ -688,7 +688,7 @@ async function fillPDF(){
     if (!res.ok) throw new Error("Cannot load PDF: " + PDF_FILENAME);
     const bytes = await res.arrayBuffer();
     const pdfDoc = await PDFLib.PDFDocument.load(bytes);
-    const form = pdfDoc.getForm();
+    const pages = pdfDoc.getForm();
     const page = pages[1];
 
     // Section 1
