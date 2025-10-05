@@ -848,7 +848,10 @@ if (sigWitness) {
 }
 
 /* ---------- Reset All ---------- */
-function resetAll(){
+function resetAll(){ 
+  if (!confirm("Are you sure you want to reset the form? All saved data will be cleared.")) {
+    return;
+  }
   document.querySelectorAll("input").forEach(inp=>{ if(inp.type==='checkbox' || inp.type==='radio') inp.checked=false; else inp.value=''; });
   document.querySelectorAll("select").forEach(s=> s.selectedIndex = 0);
   localStorage.clear();
