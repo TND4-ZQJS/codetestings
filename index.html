@@ -515,7 +515,7 @@ function openSig(target) {
   sigTarget = target;
 
   if (target === "cardholder") {
-    $("sigModalTitle").textContent = "Sign: Card Holder";
+    $("sigModalTitle").textContent = "Sign: Cardholder";
   } else {
     $("sigModalTitle").textContent = "Sign: Witness";
   }
@@ -575,7 +575,7 @@ $("sigDone").addEventListener("click", () => {
 $("clearPreviewCardholder").addEventListener("click", ()=>{
   localStorage.removeItem("epp_sig_policyowner");
   $("preview_cardholder").innerHTML = `<span>Tap to Sign 
-  (Card Holder)</span>`;
+  (Cardholder)</span>`;
 
   // also clear from canvas if modal currently showing owner
   if (sigTarget === "cardholder") signaturePad.clear();
