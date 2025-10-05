@@ -967,8 +967,9 @@ function resetAll(){
   // remove policy nodes and recreate
   policiesContainer.innerHTML = ""; policyCount = 0; addPolicyBtn.disabled=false; addPolicy();
   // restore previews empty
-  previews.cardholder.innerHTML = `<span>Tap to Sign (Cardholder)</span>`;
-  previews.witness.innerHTML = `<span>Tap to Sign (Witness)</span>`;
+  $("preview_cardholder").innerHTML = `<span>Tap to Sign (Cardholder)</span>`;
+  $("preview_witness").innerHTML = `<span>Tap to Sign (Witness)</span>`;
+
 }
 
 /* ---------- Wire events ---------- */
@@ -995,8 +996,19 @@ $("resetAll").addEventListener("click", resetAll);
       addPolicy();
   }
   
-  restoreSignaturePreviews();
-})();
+ function restoreSignaturePreviews(){
+  ["cardholder","witness"].forEach(role=>{
+    const saved = localStorage.getItem("epp_sig_"+role);
+    const el = document.getElementById("preview_" + role);
+    if (saved && el) {
+      el.innerHTML = `<img alt="Signature ${role}" src="${saved}">`;
+    } else if (el) {
+      const label = role.charAt(0).toUpperCase() + role.slice(1);
+      el.innerHTML = `<span>Tap to Sign (${label})</span>`;
+    }
+  });
+}
+
 
 /* ---------- Small nicety: show Save indicator when localStorage is updated by other code ---------- */
 window.addEventListener('storage', ()=> showSaveStatus());
