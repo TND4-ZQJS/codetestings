@@ -573,7 +573,7 @@ $("sigDone").addEventListener("click", () => {
 
 /* Clear preview buttons + restore previews on load */
 $("clearPreviewCardholder").addEventListener("click", ()=>{
-  localStorage.removeItem("epp_sig_policyowner");
+  localStorage.removeItem("epp_sig_cardholder");
   $("preview_cardholder").innerHTML = `<span>Tap to Sign 
   (Cardholder)</span>`;
 
@@ -762,9 +762,9 @@ async function fillPDF(){
     safeSetText(form, "Witness_Name", $("Witness_Name").value || "");
     safeSetText(form, "Witness_NRIC", $("Witness_NRIC").value || "");
 
-    // Owner signature
+    // Cardholder signature
 const sigCardholder = localStorage.getItem("epp_sig_cardholder");
-if (sigPolicyowner) {
+if (sigCardholder) {
   try {
     const imgCardholder = await pdfDoc.embedPng(sigCardholder);
     const { width, height } = imgCardholder.size();
