@@ -2,42 +2,81 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<title>Zero Interest EPP Form Filler</title>
+<title>EPP Form — Web Filler</title>
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <style>
-  :root{--bg:#f6f7f9;--card:#fff;--accent:#007aff;--muted:#666;}
+  :root{
+    --bg:#f6f7f9; --card:#fff; --accent:#007aff; --muted:#666; --line:#e9e9ee;
+  }
   *{box-sizing:border-box}
   body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;margin:18px;background:var(--bg);color:#111}
-  main{max-width:980px;margin:0 auto;background:var(--card);padding:18px;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,0.06)}
-  h1{margin-top:0;font-size:1.50rem}
-  .section{background:#fbfbfd;border:1px solid #eee;padding:12px;border-radius:8px;margin:12px 0}
-  .section h2{margin:0 0 8px 0}
+  main{max-width:980px;margin:0 auto;background:var(--card);padding:18px;border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,0.06)}
+  h1{margin:15px 0 35px 0;font-size:1.50rem}
+  .section{background:#fbfbfd;border:1px solid #eee;padding:14px;border-radius:10px;margin:12px 0}
+  .section h2{margin:0 0 10px 0;font-size:1.05rem}
   label{display:block;margin:8px 0;font-size:0.95rem}
   input[type=text],input[type=email],input[type=number],input[type=tel],select,textarea{
-    width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;margin-top:6px;font-size:1rem;
+    width:100%;padding:10px;border-radius:10px;border:1px solid #ddd;margin-top:6px;font-size:1rem;background:#fff
   }
-  textarea{resize:none;overflow:hidden}
-  .inline{display:inline-flex;align-items:center;margin-right:12px}
   .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:8px 0}
-  .header-row{align-items:center}
-  .amount{display:flex;flex-direction:column;min-width:160px}
-  .card-number-block .card-number-inputs{display:flex;gap:8px;margin-top:8px}
-  .card-digit{width:80px;padding:8px;border-radius:8px;border:1px solid #ddd;text-align:center;font-size:1.05rem}
-  .card-digit:focus{outline:2px solid rgba(0,122,255,0.15)}
-  .small label{flex:1}
   .muted{color:var(--muted);font-size:0.85rem}
   button{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-radius:10px;cursor:pointer}
   button.secondary{background:#999}
+  button.ghost{background:transparent;border:1px solid var(--line);color:#333}
   .actions{display:flex;gap:12px;align-items:center}
-  footer{margin-top:12px;color:var(--muted)}
-  .policy-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .policy{background:#fff;padding:10px;border-radius:8px;border:1px solid #eee}
-  .policy h3{margin:0 0 8px 0;font-size:0.95rem}
-  .tiny{font-size:0.85rem;color:var(--muted)}
-  @media (max-width:720px){
-    .policy-grid{grid-template-columns:1fr}
-    .card-digit{width:60px}
+
+  /* Header tidy alignment */
+  .header-agree{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;
   }
+  .header-agree input[type=checkbox]{margin:0}
+  .header-agree .title{font-weight:600}
+  .header-grid{
+    margin-top:10px;
+    display:grid;gap:10px;
+    grid-template-columns: 1fr 1fr;
+    align-items:start;
+  }
+  .header-item{
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px
+  }
+  .header-item .stack{display:flex;flex-direction:column;gap:6px;width:100%}
+  .header-item .inline{display:flex;align-items:center;gap:8px}
+  .header-item input[type=checkbox]{margin:0}
+  .amount-wrap{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .amount-wrap label{margin:0}
+
+  .onetime-charge-options {
+    grid-column: 2 / -1;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .onetime-charge-options.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .onetime-charge-options fieldset{
+    border: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;
+  }
+  .onetime-charge-options input[type="number"]{ width: auto; margin-top: 0; }
+  .onetime-charge-options input[type="number"][disabled] { background-color: #f6f7f9; cursor: not-allowed; }
+  .onetime-charge-options .row{ align-items: center; }
+  .onetime-charge-options .row:has(#Onetimecharge_alloutstanding:not(:checked)) .option-label { color: var(--muted); }
+  .onetime-charge-options .row:has(#Onetimecharge_specific:not(:checked)) .option-label { color: var(--muted); }
+  .onetime-charge-options .row:has(#Onetimecharge_specific:not(:checked)) #Onetimecharge_amt { opacity: 0.5; }
+
+  /* Card number */
+  .card-number-block .card-number-inputs{display:flex;gap:8px;margin-top:8px}
+  .card-digit{width:80px;padding:8px;border-radius:10px;border:1px solid #ddd;text-align:center;font-size:1.05rem;background:#fff}
+  .card-digit:focus{outline:2px solid rgba(0,122,255,0.15)}
+
+  /* Policy grid */
+  .policy-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .policy{background:#fff;padding:12px;border-radius:10px;border:1px solid #eee;position:relative}
+  .policy h3{margin:0 0 8px 0;font-size:0.95rem;display:flex;align-items:center;justify-content:space-between}
+  .policy .remove-btn{background:transparent;border:1px solid var(--line);color:#333;border-radius:8px;padding:6px 10px;font-size:0.9rem}
+  .policy .remove-btn:hover{border-color:#d0d0d7}
 
   /* Signature preview tiles */
   .sig-preview{
@@ -58,210 +97,280 @@
   #sigCanvas{ width:100%; height:220px; background:#fff; border:1px solid #ddd; border-radius:10px; touch-action:none }
   .sig-actions{ display:flex; gap:10px; justify-content:flex-end; margin-top:10px; }
 
-  /* Hidden signature XY tuning inputs (owner/witness) */
-  .hidden-inputs {display: none;}
+    #scrollTopBtn {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: #007aff; /* iOS blue */
+  color: #fff;
+  cursor: pointer;
+  display: none; /* hidden by default */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+  z-index: 999;
+}
 
-  /* Preview pane */
-  .preview{background:#fff;border:1px solid #eee;border-radius:10px;padding:10px}
-  .preview canvas{width:100%;height:auto;border-radius:8px}
+#scrollTopBtn svg {
+  pointer-events: none; /* icon doesn't block click */
+}
 
+#scrollTopBtn.show {
+  display: flex; /* show with flex centering */
+  opacity: 1;
+}
+
+  
   /* Save indicator */
-  #saveStatus{ position:fixed; top:12px; right:12px; background:var(--accent); color:#fff; padding:6px 10px; border-radius:6px; font-size:0.85rem; opacity:0; transition:opacity .25s; }
+  #saveStatus{
+    position:fixed; top:12px; right:12px; background:var(--accent); color:#fff;
+    padding:6px 10px; border-radius:8px; font-size:0.85rem; opacity:0; transition:opacity .25s;
+  }
 
-  /* Uppercase visual style for Section 1 & 5 */
-  .section1 input, .section5 input { text-transform: uppercase; }
+  @media (max-width:900px){ .header-grid{grid-template-columns:1fr} .onetime-charge-options{grid-column: 1 / -1;} }
+  @media (max-width:720px){ .policy-grid{grid-template-columns:1fr} .card-digit{width:60px} }
 </style>
 </head>
 <body>
 <main>
-  <h1>Zero Interest EPP (LF1739) </h1>
+  <h1>EPP Form Testing ()</h1>
 
-  <section class="section section1" id="section1">
-    <h2>Section 1 — Cardholder Details</h2>
-    <label>Cardholder"s Name
-      <input id="Cardholder_Name" type="text" placeholder="Enter name">
-    </label>
-    <label>Mailing Address Line 1
-      <input id="Cardholder_MailingAdd_Line1" type="text">
-    </label>
-    <label>Mailing Address Line 2
-      <input id="Cardholder_MailingAdd_Line2" type="text">
-    </label>
+
+  <section class="section" id="sectionA">
+    <h2>Section A — Policy Entries</h2>
+    <div id="policiesContainer" class="policy-grid"></div>
     <div class="row">
-      <label style="flex:1">IC No. / NIRC
-        <input id="Cardholder_NIRC" type="text" placeholder="e.g. 940101-01-1234">
-      </label>
-      <label style="flex:1">Home No.
-        <input id="Cardholder_HomeNo" type="text" placeholder="Home number">
-      </label>
-      <label style="flex:1">Mobile No.
-        <input id="Cardholder_MobileNo" type="text" placeholder="Mobile number">
-      </label>
+      <button id="addPolicy">+ Add Another Policy</button>
+      <small class="muted">Up to 4 policies</small>
     </div>
   </section>
 
-  <section class="section" id="section2">
-    <h2>Section 2 — Credit Card Details</h2>
+  <section class="section">
+    <h2>Section B - Card Details</h2>
+
+    <label>Cardholder's Name (as in I/C)
+      <input id="CardName" type="text" placeholder="AS IN I/C">
+    </label>
 
     <div class="row">
-      <label style="flex:1">Credit Card Number
-        <div class="card-number-block">
-          <div class="card-number-inputs">
-            <input class="card-digit" id="CC_1" maxlength="4" inputmode="numeric" pattern="\d*">
-            <input class="card-digit" id="CC_2" maxlength="4" inputmode="numeric" pattern="\d*">
-            <input class="card-digit" id="CC_3" maxlength="4" inputmode="numeric" pattern="\d*">
-            <input class="card-digit" id="CC_4" maxlength="4" inputmode="numeric" pattern="\d*">
-          </div>
-          <small class="muted tiny">Type 4 digits per box. Paste full 16-digit number — it will auto-split.</small>
-        </div>
-      </label>
+      <label class="inline"><input name="cardType" id="CC_Tick" type="radio"> Credit Card</label>
+      <label class="inline"><input name="cardType" id="DebitC_Tick" type="radio"> Debit Card</label>
+    </div>
 
-      <label style="min-width:140px">Expiry Month
-        <select id="CC_MM_Select">
+    <div class="card-number-block">
+      <label>Card Number</label>
+      <div class="card-number-inputs">
+        <input class="card-digit" id="CardNo_1" maxlength="4" inputmode="numeric" pattern="\d*">
+        <input class="card-digit" id="CardNo_2" maxlength="4" inputmode="numeric" pattern="\d*">
+        <input class="card-digit" id="CardNo_3" maxlength="4" inputmode="numeric" pattern="\d*">
+        <input class="card-digit" id="CardNo_4" maxlength="4" inputmode="numeric" pattern="\d*">
+      </div>
+      <small class="muted">Type 4 digits per box. Paste full 16-digit number — it will auto-split.</small>
+    </div>
+
+    <div class="row">
+      <label style="flex:1">Expiry (Month)
+        <select id="CardExpry_M_Select">
           <option value="">-- Month --</option>
-          <option value="01">01 - JAN</option>
-          <option value="02">02 - FEB</option>
-          <option value="03">03 - MAR</option>
-          <option value="04">04 - APR</option>
-          <option value="05">05 - MAY</option>
-          <option value="06">06 - JUN</option>
-          <option value="07">07 - JUL</option>
-          <option value="08">08 - AUG</option>
-          <option value="09">09 - SEP</option>
-          <option value="10">10 - OCT</option>
-          <option value="11">11 - NOV</option>
-          <option value="12">12 - DEC</option>
         </select>
       </label>
-      <label style="min-width:140px">Expiry Year
-        <select id="CC_YY_Select">
+      <label style="flex:1">Expiry (Year)
+        <select id="CardExpry_Y_Select">
           <option value="">-- Year --</option>
         </select>
       </label>
     </div>
 
     <div class="row">
-      <label style="flex:1">
-        Card Bank
-        <select id="CC_Bank_Select">
-          <option value="">-- choose bank --</option>
-          <option value="CC_Bank_UOB">UOB</option>
-          <option value="CC_Bank_CIMB">CIMB</option>
-          <option value="CC_Bank_HLB">Hong Leong Bank (HLB)</option>
-          <option value="CC_Bank_PBB">Public Bank (PBB)</option>
-          <option value="CC_Bank_MBB">Maybank (MBB)</option>
-          <option value="CC_Bank_HSBC">HSBC</option>
-          <option value="CC_Bank_Alliance">Alliance Bank</option>
-          <option value="CC_Bank_StanChart">Standard Chartered</option>
+      <label style="flex:1">Issuing Bank
+        <select id="CardBank_Select">
+          <option value="">-- Select Bank --</option>
         </select>
-      </label>
-
-      <label style="width:200px">
-        Card Type
-        <select id="CardType_Select">
-          <option value="">-- choose card type --</option>
-          <option value="Visa">Visa</option>
-          <option value="Master">Master</option>
-        </select>
-      </label>
-
-      <label style="width:220px">
-        EPP Term
-        <select id="EPPTerm_Select">
-          <option value="">-- choose term --</option>
-          <option value="EPPTerm_6Months">6 months</option>
-          <option value="EPPTerm_12Months">12 months</option>
-        </select>
-      </label>
+        </label>
     </div>
 
+    <div class="row">
+      <label class="inline"><input name="brand" id="Visa_Tick" type="radio"> Visa</label>
+      <label class="inline"><input name="brand" id="Master_Tick" type="radio"> Master</label>
+    </div>
   </section>
 
-  <section class="section" id="section3">
-    <h2>Section 3 — Frequency After EPP Ended</h2>
-    <label>
-      Payment Frequency after EPP ended
-      <select id="AfterEPP_Select">
-        <option value="">-- choose frequency --</option>
-        <option value="AfterEPP_Annually">Annually</option>
-        <option value="AfterEPP_Halfyearly">Half-yearly</option>
-        <option value="AfterEPP_Quarterly">Quarterly</option>
-        <option value="AfterEPP_Monthly">Monthly</option>
+<section class="section" id="sectionC">
+  <h2>Section C - Third Party / Source</h2>
+
+  <label class="inline">
+    <input id="ThirdPP_Yes" type="checkbox">
+    <span>Payment by Third Party Payor (other than Policyowner)</span>
+  </label>
+
+  <div id="thirdPP_ic_wrap" style="display:none; margin-top:8px;">
+    <label class="inline">
+      <input id="ThirdPP_SubmittedNRIC" type="checkbox">
+      <span>Prepare IC Copy to be submitted together with this form</span>
+    </label>
+  </div>
+
+  <div id="thirdPP_fields" style="display:none; margin-top:14px;">
+    <label>Third Party Payor’s Name
+      <input id="ThirdPP_Name" type="text">
+    </label>
+
+    <label>Date of Birth</label>
+    <div class="row">
+      <select id="ThirdPP_DOB_DD"></select>
+      <select id="ThirdPP_DOB_MM"></select>
+      <input id="ThirdPP_DOB_YYYY" type="number" min="1900" max="2100" placeholder="YYYY">
+    </div>
+
+    <label>IC No.
+      <input id="ThirdPP_NIRC" type="text">
+    </label>
+    <label>Nationality
+      <input id="ThirdPP_Nationality" type="text">
+    </label>
+    <label>Correspondence Address Line 1
+      <input id="ThirdPP_CorrespAdd_Line1" type="text">
+    </label>
+    <label>Correspondence Address Line 2
+      <input id="ThirdPP_CorrespAdd_Line2" type="text">
+    </label>
+    <label>Postcode
+      <input id="ThirdPP_CorrrepAdd_Postcode" type="number">
+    </label>
+    <label>Country
+      <input id="ThirdPP_CorrespAdd_Country" type="text">
+    </label>
+    <label>Email Address
+      <input id="ThirdPP_Email" type="email">
+    </label>
+    <label>Mobile No.
+      <input id="ThirdPP_Phone" type="text">
+    </label>
+    <label>Occupation
+      <input id="ThirdPP_Occupation" type="text">
+    </label>
+    <label>Name of Employer
+      <input id="ThirdPP_Employer" type="text">
+    </label>
+    <label>Nature of Business
+      <input id="ThirdPP_NatureBusiness" type="text">
+    </label>
+    <label>Monthly Income (RM)
+      <input id="ThirdPP_Income" type="number" step="0.01">
+    </label>
+
+    <h3>Source of Funds</h3>
+    <label class="inline"><input id="ThirdPP_SourceFund_Self" type="checkbox"> <span>Self</span></label>
+    <label class="inline"><input id="ThirdPP_SourceFund_Parent" type="checkbox"> <span>Parent(s)</span></label>
+    <label class="inline"><input id="ThirdPP_SourceFund_Spouse" type="checkbox"> <span>Spouse</span></label>
+    <label class="inline"><input id="ThirdPP_SourceFund_Others" type="checkbox"> <span>Others</span></label>
+    <label>If others specify
+      <input id="ThirdPP_SourceFund_Others_Write" type="text">
+    </label>
+
+    <h3>Source of Wealth</h3>
+    <label class="inline"><input id="ThirdPP_SourceWealth_EmployBus" type="checkbox"> <span>Employment/Business</span></label>
+    <label class="inline"><input id="ThirdPP_SourceWealth_Invest" type="checkbox"> <span>Investment</span></label>
+    <label class="inline"><input id="ThirdPP_SourceWealth_Inherit" type="checkbox"> <span>Inheritance</span></label>
+    <label class="inline"><input id="ThirdPP_SourceWealth_Savings" type="checkbox"> <span>Savings</span></label>
+    <label class="inline"><input id="ThirdPP_SourceWealth_Parents" type="checkbox"> <span>Parents</span></label>
+    <label class="inline"><input id="ThirdPP_SourceWealth_Spouse" type="checkbox"> <span>Spouse</span></label>
+    <label class="inline"><input id="ThirdPP_SourceWealth_Others" type="checkbox"> <span>Others</span></label>
+    <label>If others specify
+      <input id="ThirdPP_SourceWealth_Others_Write" type="text">
+    </label>
+  </div>
+</section>
+
+<section class="section" id="sectionD">
+  <h2>Section D - PDPA</h2>
+  <label class="inline">
+    <input id="PDPA" type="checkbox">
+    <span>I have read and agree to the PDPA terms</span>
+  </label>
+</section>
+
+<section class="section">
+  <h2>Section E — Signature</h2>
+
+  <label>Policy Owner's Name
+    <input id="Sign_OwnerName" type="text">
+  </label>
+  <div class="row" style="margin-top: -10px; margin-bottom: 12px;">
+    <label class="inline">
+      <input type="checkbox" id="SameAsCardOwner">
+      <span>Same as Card owner</span>
+    </label>
+  </div>
+
+  <div class="row">
+    <label style="flex:1">IC No.
+      <input id="Sign_OwnerNIRC" type="text">
+    </label>
+    <label style="flex:1">Signed at (State)
+      <select id="Sign_State_Select">
+        <option value="">-- Select State --</option>
       </select>
     </label>
-    <small class="muted tiny">Make sure payment frequency is the same in PI</small>
-  </section>
+  </div>
 
-  <section class="section" id="section4">
-    <h2>Section 4 — Policy Details (up to 5)</h2>
-    <div id="policiesContainer" class="policy-grid"></div>
-    <div class="row">
-      <button id="addPolicy">+ Add Policy</button>
-      <small class="muted tiny">Up to 5 policies</small>
-    </div>
-  </section>
-
-  <section class="section section5" id="section5">
-    <h2>Section 5 — Signatures & Witness</h2>
-
-    <div class="row">
-         <label style="flex:1">Signed State
-      <select id="Signed_State" name="Signed_State" required>
-        <option value="" disabled selected>-- Select State --</option>
-        <option value="SELANGOR">SELANGOR</option>
-        <option value="K.LUMPUR">K.LUMPUR</option>
-        <option value="MELAKA">MELAKA</option>
-        <option value="N.SEMBILAN">N.SEMBILAN</option>
-        <option value="JOHOR">JOHOR</option>
-        <option value="PENANG">PENANG</option>
-        <option value="PERAK">PERAK</option>
-        <option value="KEDAH">KEDAH</option>
-        <option value="PAHANG">PAHANG</option>
-        <option value="PERLIS">PERLIS</option>
-        <option value="SARAWAK">SARAWAK</option>
-        <option value="SABAH">SABAH</option>
-        <option value="TERENGGANU">T'GANU</option>
-        <option value="KELANTAN">KELANTAN</option>
-      </select>
+  <div class="row">
+    <label>Signed Date (DD)
+      <select id="Sign_Date_Select"></select>
     </label>
-      <label>Day
-        <select id="Signed_Day"><option value="">Day</option></select>
-      </label>
-      <label>Month
-        <select id="Signed_Month"><option value="">Month</option></select>
-      </label>
-      <label>Year
-        <select id="Signed_Year"><option value="">Year</option></select>
+    <label>Signed Month
+      <select id="Sign_Month_Select"></select>
+    </label>
+    <label>Signed Year (YYYY)
+      <select id="Sign_Year_Select"></select>
+    </label>
+  </div>
+
+  <!-- Tap-to-sign previews (Owner + Payor) -->
+  <h3>Policy Owner Signature</h3>
+  <div class="sig-preview" id="preview_owner" onclick="openSig('owner')">
+    <span>Tap to Sign (Owner)</span>
+  </div>
+  <div class="row">
+    <button id="clearPreviewOwner" class="secondary" type="button">Clear Signature</button>
+  </div>
+
+  <div id="payorSignatureSection" style="display:none; margin-top: 20px;">
+    <h3>Fill and Sign only if Payor is not Policy Owner</h3>
+    <label>Payor's Name
+      <input id="Sign_PayorName" type="text">
+    </label>
+    <div class="row" style="margin-top: -10px; margin-bottom: 12px;">
+      <label class="inline">
+        <input type="checkbox" id="SameAsThirdPartyPayorName">
+        <span>Same as Third Party Payor</span>
       </label>
     </div>
 
-    <h3>Signature of Cardholder</h3>
-    <div class="sig-preview" id="preview_cardholder" onclick="openSig('cardholder')">
-      <span>Tap to Sign (Cardholder)</span>
+    <label>Payor's IC No.
+      <input id="Sign_PayorNIRC" type="text">
+    </label>
+    <div class="row" style="margin-top: -10px; margin-bottom: 12px;">
+      <label class="inline">
+        <input type="checkbox" id="SameAsThirdPartyPayorNIRC">
+        <span>Same as Third Party Payor</span>
+      </label>
+    </div>
+
+    <h3>Payor Signature</h3>
+    <div class="sig-preview" id="preview_payor" onclick="openSig('payor')">
+      <span>Tap to Sign (Payor)</span>
     </div>
     <div class="row">
-      <button id="clearPreviewCardholder" class="secondary">Clear Signature</button>
+      <button id="clearPreviewPayor" class="secondary" type="button">Clear Signature</button>
     </div>
-
-    <div class="row small">
-      <label>Witness Name
-        <input id="Witness_Name" type="text">
-      </label>
-      <label>Witness NRIC
-        <input id="Witness_NRIC" type="text">
-      </label>
-    </div>
-
-    <h3 style="margin-top:12px">Signature of Witness</h3>
-    <div class="sig-preview" id="preview_witness" onclick="openSig('witness')">
-      <span>Tap to Sign (Witness)</span>
-    </div>
-    <div class="row">
-      <button id="clearPreviewWitness" class="secondary">Clear Signature</button>
-    </div>
-
-    
-  </section>
+  </div>
+</section>
 
   <section class="section actions">
     <button id="generate">Generate PDF</button>
@@ -270,6 +379,7 @@
 
 </main>
 
+<!-- Signature Modal -->
 <div id="sigModal" class="sig-modal" aria-hidden="true">
   <div class="box">
     <h3 id="sigModalTitle">Draw Signature</h3>
@@ -285,276 +395,329 @@
 
 <div id="saveStatus">Saved</div>
 
+ <button id="scrollTopBtn" onclick="scrollToTop()" aria-label="Back to top">
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 16 16">
+    <path fill-rule="evenodd" d="M8 4.354l-5.146 5.147.708.708L8 5.768l4.438 4.441.708-.708z"/>
+  </svg>
+</button>
+
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.2.0/dist/signature_pad.umd.min.js"></script>
 <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-
 <script>
 /* ---------- CONFIG ---------- */
-const PDF_FILENAME = "Zero Interest Easy Payment Plan Form_LF1739_fillable.pdf";
-const MAX_POLICIES = 5;
+const PDF_FILENAME = "Credit Card Enrolment Form_LF4092_200524_fillable.pdf";
+const MAX_POLICIES = 4;
 
 /* ---------- helpers ---------- */
 function $(id){return document.getElementById(id);}
 function safeSetText(form, name, text){
-  try{ form.getTextField(name).setText(String(text || "")); } catch(e){}
+  try{ form.getTextField(name).setText(String(text || "")); } catch(e){ /* missing field ok */ }
 }
 function safeCheck(form, name, checked){
-  try{ const cb = form.getCheckBox(name); if (checked) cb.check(); else cb.uncheck(); } catch(e){}
+  try{ const cb = form.getCheckBox(name); if (checked) cb.check(); else cb.uncheck(); } catch(e){ /* missing field ok */ }
 }
 
-/* ---------- Policies dynamic (updated) ---------- */
+/* ---------- Save indicator ---------- */
+const saveStatusEl = $("saveStatus");
+function showSaveStatus(){
+  saveStatusEl.style.opacity = 1;
+  clearTimeout(saveStatusEl._timer);
+  saveStatusEl._timer = setTimeout(()=> saveStatusEl.style.opacity = 0, 1200);
+}
+function saveElValue(el){
+  if(!el || !el.id) return;
+  if(el.type === 'checkbox' || el.type === 'radio'){
+    localStorage.setItem(el.id, el.checked);
+  } else {
+    localStorage.setItem(el.id, el.value);
+  }
+  showSaveStatus();
+}
+function autoBindSave(el){
+  const saved = localStorage.getItem(el.id);
+  if(saved !== null){
+    if(el.type === 'checkbox' || el.type === 'radio') el.checked = (saved === 'true');
+    else el.value = saved;
+  }
+  el.addEventListener((el.type === 'checkbox' || el.type === 'radio') ? 'change' : 'input', ()=> saveElValue(el));
+}
+
+
+/* ---------- SECTION A: Dynamic policies ---------- */
 const policiesContainer = $("policiesContainer");
 const addPolicyBtn = $("addPolicy");
 let policyCount = 0;
 
-function setupPolicyOwnerCheckbox(ownerInput, cardholderNameInput, checkbox) {
-  checkbox.addEventListener('change', () => {
-    if (checkbox.checked) {
-      ownerInput.value = cardholderNameInput.value.toUpperCase();
-    } else {
-      ownerInput.value = '';
-    }
-    // save the value after change
-    localStorage.setItem(ownerInput.id, ownerInput.value);
-    localStorage.setItem(checkbox.id, checkbox.checked);
-    showSaveStatus();
-  });
-
-  // Also listen for changes on the cardholder name and update if checked
-  cardholderNameInput.addEventListener('input', () => {
-    if (checkbox.checked) {
-      ownerInput.value = cardholderNameInput.value.toUpperCase();
-      localStorage.setItem(ownerInput.id, ownerInput.value);
-      showSaveStatus();
-    }
-  });
-
-  // Restore the checkbox state on load
-  const savedCheckboxState = localStorage.getItem(checkbox.id);
-  if (savedCheckboxState === 'true') {
-    checkbox.checked = true;
-    ownerInput.value = cardholderNameInput.value.toUpperCase();
-  }
+function relationshipOptionsHTML(selected=""){
+  const opts = ["OWNSELF","SPOUSE","CHILDREN","PARENT","GRANDPARENT","SIBLING","COMPANY"];
+  return opts.map(v=> `<option value="${v}" ${v===selected?"selected":""}>${v}</option>`).join("");
 }
-
-function attachAutoSave(el) {
-  if (!el || !el.id) return;
-  
-  // Restore previously saved value
-  const saved = localStorage.getItem(el.id);
-  if (saved !== null) {
-    if (el.type === "checkbox") el.checked = (saved === "true");
-    else el.value = saved;
-  }
-
-  // Auto-save on input
-  el.addEventListener("input", () => {
-    // Uppercase rules for certain fields
-    if (
-      el.closest(".section1") ||
-      el.closest(".section5") ||
-      (el.closest(".policy") && el.id.includes("_OwnerName"))
-    ) {
-      if (
-        el.type !== "number" &&
-        el.inputMode !== "numeric" &&
-        el.tagName.toLowerCase() !== "select"
-      ) {
-        el.value = el.value.toUpperCase();
-      }
-    }
-    debounceSave(() => saveElValue(el), 120)();
-  });
-
-  // Checkbox should save on change
-  if (el.type === "checkbox") {
-    el.addEventListener("change", () => saveElValue(el));
-  }
-}
-
 function createPolicyEntry(index){
   const wrap = document.createElement("div");
   wrap.className = "policy";
   wrap.dataset.index = index;
-  const title = document.createElement("h3");
-  title.textContent = `Policy ${index}`;
-  wrap.appendChild(title);
-
-  // Policy No.
-  const pNoLabel = document.createElement("label");
-  pNoLabel.textContent = "Policy No.";
-  const pNoInput = document.createElement("input");
-  pNoInput.type="text";
-  pNoInput.id=`Paymentfor_PolicyNo${index}`;
-  pNoInput.placeholder=`Enter Policy Number`;
-  pNoLabel.appendChild(pNoInput);
-  wrap.appendChild(pNoLabel);
-
-  // Same as Cardholder checkbox
-  const sameOwnerRow = document.createElement("div");
-  sameOwnerRow.className = "row";
-  const sameOwnerLabel = document.createElement("label");
-  sameOwnerLabel.className = "inline";
-  const sameOwnerCheckbox = document.createElement("input");
-  sameOwnerCheckbox.type = "checkbox";
-  sameOwnerCheckbox.id = `sameAsCardholder_${index}`;
-  sameOwnerLabel.appendChild(sameOwnerCheckbox);
-  sameOwnerLabel.appendChild(document.createTextNode(" Same as Cardholder"));
-  sameOwnerRow.appendChild(sameOwnerLabel);
-  wrap.appendChild(sameOwnerRow);
-
-  // Owner Name
-  const ownerLabel = document.createElement("label");
-  ownerLabel.textContent = "Name of Policyowner";
-  const ownerInput = document.createElement("input");
-  ownerInput.type="text";
-  ownerInput.id=`Paymentfor_PolicyNo${index}_OwnerName`;
-  ownerInput.placeholder=`Enter Policyowner's Name`;
-  ownerLabel.appendChild(ownerInput);
-  wrap.appendChild(ownerLabel);
-
-  // Relationship
-  const relLabel = document.createElement("label");
-  relLabel.textContent = "Relationship to Cardholder";
-  const relSelect = document.createElement("select");
-  relSelect.id=`Paymentfor_PolicyNo${index}_Relationship`;
-  ["","Ownself","Spouse","Children","Parents","Grandparents","Siblings","Employer/Employee"].forEach(opt=>{
-    const o=document.createElement("option");
-    o.value=opt;
-    o.textContent=opt===""?"-- choose --":opt;
-    relSelect.appendChild(o);
+  wrap.innerHTML = `
+    <h3><span>Policy Entry ${index}</span> <button type="button" class="remove-btn" aria-label="Remove policy">Remove</button></h3>
+    <label>Policy No.
+      <input type="text" id="PolicyNo${index}" placeholder="Enter policy number">
+    </label>
+    <label>Name of Insured
+      <input type="text" id="Insured${index}" placeholder="Enter name of Insured">
+    </label>
+    <label>Relationship of Cardholder with Owner
+      <select id="Relationship${index}">
+        <option value="">-- CHOOSE --</option>
+        ${relationshipOptionsHTML()}
+      </select>
+    </label>
+  `;
+  const insured = wrap.querySelector("#Insured"+index);
+  insured.addEventListener("input", ()=>{ insured.value = insured.value.toUpperCase(); saveElValue(insured); });
+  ["PolicyNo"+index, "Relationship"+index].forEach(id=>{
+    const el = wrap.querySelector("#"+id); if(el) autoBindSave(el);
   });
-  relLabel.appendChild(relSelect);
-  wrap.appendChild(relLabel);
+  const sp = localStorage.getItem("PolicyNo"+index); if(sp!==null) wrap.querySelector("#PolicyNo"+index).value = sp;
+  const si = localStorage.getItem("Insured"+index); if(si!==null) insured.value = si.toUpperCase();
+  const sr = localStorage.getItem("Relationship"+index); if(sr!==null) wrap.querySelector("#Relationship"+index).value = sr;
 
-  // First Premium
-  const premLabel = document.createElement("label");
-  premLabel.textContent = "First Premium (RM)";
-  const premInput = document.createElement("input");
-  premInput.type="text";
-  premInput.id=`Paymentfor_PolicyNo${index}_FirstPremium`;
-  premInput.placeholder="e.g. 1200.00";
-  premLabel.appendChild(premInput);
-  wrap.appendChild(premLabel);
-
-  // Remove button (for index > 1)
-  if(index>1){
-    const rem=document.createElement("button");
-    rem.type="button";
-    rem.className="secondary";
-    rem.textContent="Remove";
-    rem.style.marginTop="8px";
-    rem.addEventListener("click", ()=>{
-      // clear localStorage keys
-      localStorage.removeItem(`sameAsCardholder_${index}`);
-      localStorage.removeItem(`Paymentfor_PolicyNo${index}`);
-      localStorage.removeItem(`Paymentfor_PolicyNo${index}_OwnerName`);
-      localStorage.removeItem(`Paymentfor_PolicyNo${index}_Relationship`);
-      localStorage.removeItem(`Paymentfor_PolicyNo${index}_FirstPremium`);
-      // remove DOM
-      wrap.remove();
-      policyCount--;
-      localStorage.setItem("policyCount", policyCount);
-      addPolicyBtn.disabled = policyCount >= MAX_POLICIES;
-      reorganizePolicyIndices();
-      showSaveStatus();
-    });
-    wrap.appendChild(rem);
-  }
-
-  // Checkbox sync logic
-  const cardholderNameInput = $("Cardholder_Name");
-  setupPolicyOwnerCheckbox(ownerInput, cardholderNameInput, sameOwnerCheckbox);
-
-  // Auto-save setup
-  attachAutoSave(pNoInput);
-  attachAutoSave(ownerInput);
-  attachAutoSave(relSelect);
-  attachAutoSave(premInput);
-  attachAutoSave(sameOwnerCheckbox);
-
+  wrap.querySelector(".remove-btn").addEventListener("click", ()=>{
+    policiesContainer.removeChild(wrap);
+    policyCount = Math.max(0, policyCount - 1);
+    addPolicyBtn.disabled = policyCount >= MAX_POLICIES;
+    renumberPolicies(); showSaveStatus();
+  });
   return wrap;
 }
-
 function addPolicy(){
-  if(policyCount>=MAX_POLICIES) return;
+  if(policyCount >= MAX_POLICIES) return;
   policyCount++;
-  policiesContainer.appendChild(createPolicyEntry(policyCount));
-  localStorage.setItem('policyCount', policyCount);
+  const node = createPolicyEntry(policyCount);
+  policiesContainer.appendChild(node);
   addPolicyBtn.disabled = policyCount >= MAX_POLICIES;
+  localStorage.setItem("policyCount", policyCount);
   showSaveStatus();
 }
-
-function reorganizePolicyIndices(){
-  const nodes = Array.from(policiesContainer.querySelectorAll(".policy"));
-  nodes.forEach((n, idx)=> {
-    const oldIdx = parseInt(n.dataset.index, 10);
-    const newIdx = idx+1;
-    if (oldIdx === newIdx) return;
-
-    // Move storage data
-    const fields = [
-      {old:`Paymentfor_PolicyNo${oldIdx}`, new:`Paymentfor_PolicyNo${newIdx}`},
-      {old:`Paymentfor_PolicyNo${oldIdx}_OwnerName`, new:`Paymentfor_PolicyNo${newIdx}_OwnerName`},
-      {old:`Paymentfor_PolicyNo${oldIdx}_Relationship`, new:`Paymentfor_PolicyNo${newIdx}_Relationship`},
-      {old:`Paymentfor_PolicyNo${oldIdx}_FirstPremium`, new:`Paymentfor_PolicyNo${newIdx}_FirstPremium`},
-      {old:`sameAsCardholder_${oldIdx}`, new:`sameAsCardholder_${newIdx}`}
-    ];
-    fields.forEach(f=>{
-      const v = localStorage.getItem(f.old);
-      if (v !== null) {
-        localStorage.setItem(f.new, v);
-        localStorage.removeItem(f.old);
-      }
-    });
-
-    // Update IDs
-    n.dataset.index = newIdx;
-    n.querySelector("h3").textContent = `Policy ${newIdx}`;
-    const pNo = n.querySelector(`#Paymentfor_PolicyNo${oldIdx}`); if(pNo) pNo.id = `Paymentfor_PolicyNo${newIdx}`;
-    const owner = n.querySelector(`#Paymentfor_PolicyNo${oldIdx}_OwnerName`); if(owner) owner.id = `Paymentfor_PolicyNo${newIdx}_OwnerName`;
-    const rel = n.querySelector(`#Paymentfor_PolicyNo${oldIdx}_Relationship`); if(rel) rel.id = `Paymentfor_PolicyNo${newIdx}_Relationship`;
-    const prem = n.querySelector(`#Paymentfor_PolicyNo${oldIdx}_FirstPremium`); if(prem) prem.id = `Paymentfor_PolicyNo${newIdx}_FirstPremium`;
-    const cb = n.querySelector(`#sameAsCardholder_${oldIdx}`);
-    if(cb) {
-      cb.id = `sameAsCardholder_${newIdx}`;
-      setupPolicyOwnerCheckbox(owner, $("Cardholder_Name"), cb);
-    }
+function renumberPolicies(){
+  const cards = Array.from(policiesContainer.querySelectorAll(".policy"));
+  const snapshot = cards.map((card)=> {
+    const idx = card.dataset.index;
+    return {
+      el: card,
+      PolicyNo: card.querySelector(`#PolicyNo${idx}`)?.value || "",
+      Insured: card.querySelector(`#Insured${idx}`)?.value || "",
+      Relationship: card.querySelector(`#Relationship${idx}`)?.value || ""
+    };
   });
+  snapshot.forEach((_, i)=>{
+    const old = (cards[i].dataset.index);
+    ["PolicyNo","Insured","Relationship"].forEach(k => localStorage.removeItem(k+old));
+  });
+  snapshot.forEach((data, i)=>{
+    const newIndex = i+1;
+    const card = data.el;
+    card.dataset.index = newIndex;
+    const titleSpan = card.querySelector("h3 span");
+    if(titleSpan) titleSpan.textContent = "Policy Entry " + newIndex;
 
-  policyCount = nodes.length;
-  localStorage.setItem('policyCount', policyCount);
-  addPolicyBtn.disabled = policyCount >= MAX_POLICIES;
+    const pn = card.querySelector(`[id^="PolicyNo"]`);
+    const iname = card.querySelector(`[id^="Insured"]`);
+    const rel = card.querySelector(`[id^="Relationship"]`);
+    pn.id = "PolicyNo"+newIndex; pn.setAttribute("placeholder","PolicyNo"+newIndex);
+    iname.id = "Insured"+newIndex; iname.setAttribute("placeholder","Insured"+newIndex);
+    rel.id = "Relationship"+newIndex;
+
+    iname.removeEventListener("input", iname._upperListener || (()=>{}));
+    const upperListener = ()=>{ iname.value = iname.value.toUpperCase(); saveElValue(iname); };
+    iname.addEventListener("input", upperListener); iname._upperListener = upperListener;
+
+    [pn, rel].forEach(el=>{ el.replaceWith(el.cloneNode(true)); });
+    const pn2 = card.querySelector("#PolicyNo"+newIndex);
+    const rel2 = card.querySelector("#Relationship"+newIndex);
+
+    pn2.value = data.PolicyNo || "";
+    iname.value = (data.Insured || "").toUpperCase();
+    rel2.value = data.Relationship || "";
+
+    autoBindSave(pn2); autoBindSave(iname); autoBindSave(rel2);
+    localStorage.setItem("PolicyNo"+newIndex, pn2.value);
+    localStorage.setItem("Insured"+newIndex, iname.value);
+    localStorage.setItem("Relationship"+newIndex, rel2.value);
+  });
+  policyCount = snapshot.length;
+  localStorage.setItem("policyCount", policyCount);
 }
-
 addPolicyBtn.addEventListener("click", addPolicy);
-addPolicy(); // start with 1
 
-/* ---------- Credit card number inputs (unchanged) ---------- */
-const ccDigits = [ $("CC_1"), $("CC_2"), $("CC_3"), $("CC_4") ];
-ccDigits.forEach((el, idx)=>{
-  el.addEventListener("input", ()=>{ el.value = el.value.replace(/\D/g,'').slice(0,4); if(el.value.length===4 && idx<ccDigits.length-1) ccDigits[idx+1].focus(); });
-  el.addEventListener("keydown", (e)=>{ if(e.key==="Backspace" && el.value.length===0 && idx>0) ccDigits[idx-1].focus(); });
+/* ---------- CARD details enhancements ---------- */
+$("CardName").addEventListener("input", (e)=>{ e.target.value = e.target.value.toUpperCase(); saveElValue(e.target); });
+const cardDigits = [ $("CardNo_1"), $("CardNo_2"), $("CardNo_3"), $("CardNo_4") ];
+cardDigits.forEach((el, idx)=>{
+  autoBindSave(el);
+  el.addEventListener("input", ()=>{
+    el.value = el.value.replace(/\D/g,'').slice(0,4);
+    saveElValue(el);
+    if(el.value.length===4 && idx<cardDigits.length-1) cardDigits[idx+1].focus();
+  });
+  el.addEventListener("keydown", (e)=>{ if(e.key==="Backspace" && el.value.length===0 && idx>0) cardDigits[idx-1].focus(); });
   el.addEventListener("paste", (e)=>{
     e.preventDefault();
     const paste = (e.clipboardData || window.clipboardData).getData('text');
     const digits = paste.replace(/\D/g,'').slice(0,16).padEnd(16,' ');
-    for(let i=0;i<4;i++){ ccDigits[i].value = digits.slice(i*4, i*4+4).trim(); }
-    for(let i=0;i<4;i++){ if(ccDigits[i].value.length<4){ ccDigits[i].focus(); break; } if(i===3) ccDigits[3].focus(); }
+    for(let i=0;i<4;i++){ cardDigits[i].value = digits.slice(i*4, i*4+4).trim(); saveElValue(cardDigits[i]); }
+    for(let i=0;i<4;i++){ if(cardDigits[i].value.length<4){ cardDigits[i].focus(); break; } if(i===3) cardDigits[3].focus(); }
   });
 });
-
-/* ---------- NEW: Card expiry year dropdown population ---------- */
-(function populateCCYearSelector() {
-  const yearSel = document.getElementById("CC_YY_Select");
+(function populateExpirySelectors(){
+  const mmSel = $("CardExpry_M_Select");
+  const months = [
+    "01 - JANUARY","02 - FEBRUARY","03 - MARCH","04 - APRIL",
+    "05 - MAY","06 - JUNE","07 - JULY","08 - AUGUST",
+    "09 - SEPTEMBER","10 - OCTOBER","11 - NOVEMBER","12 - DECEMBER"
+  ];
+  months.forEach(m=>{
+    const opt=document.createElement("option");
+    opt.value = m.slice(0,2);
+    opt.textContent = m;
+    mmSel.appendChild(opt);
+  });
+  autoBindSave(mmSel);
+  const yySel = $("CardExpry_Y_Select");
   const currentYear = new Date().getFullYear();
-  for (let y = currentYear; y <= currentYear + 10; y++) {
-    const option = document.createElement("option");
-    option.value = String(y).slice(-2);
-    option.textContent = y;
-    yearSel.appendChild(option);
+  for(let y=currentYear; y<=currentYear+15; y++){
+    const opt=document.createElement("option");
+    opt.value = String(y).slice(-2);
+    opt.textContent = String(y);
+    yySel.appendChild(opt);
   }
+  autoBindSave(yySel);
 })();
+(function populateBanks(){
+  const banks = [
+    "MAYBANK","CIMB BANK","PUBLIC BANK","RHB BANK","HONG LEONG BANK","AMBANK",
+    "UOB BANK","OCBC BANK","HSBC BANK","AFFIN BANK","ALLIANCE BANK",
+    "BANK ISLAM","BANK MUAMALAT","BANK RAKYAT","BANK SIMPANAN NASIONAL (BSN)",
+    "STANDARD CHARTERED BANK","CITIBANK","MUFG BANK","MIZUHO BANK",
+    "BANK OF CHINA","BANGKOK BANK BERHAD","BNP PARIBAS MALAYSIA","DEUTSCHE BANK",
+    "J.P. MORGAN MALAYSIA","ICBC", "GX BANK"
+  ];
+  const sel = $("CardBank_Select");
+  banks.forEach(b=>{ const o=document.createElement("option"); o.value=b; o.textContent=b; sel.appendChild(o); });
+  autoBindSave(sel);
+})();
+
+// --- Auto uppercase for signatory Policy Owner and Payor name  ---
+document.getElementById("Sign_OwnerName").addEventListener("input", e => {
+  e.target.value = e.target.value.toUpperCase();
+  saveElValue(e.target);
+});
+document.getElementById("Sign_PayorName").addEventListener("input", e => {
+  e.target.value = e.target.value.toUpperCase();
+  saveElValue(e.target);
+});
+
+
+/* Populate DOB dropdowns for Third Party */
+(function populateDOB(){
+  const daySel = $("ThirdPP_DOB_DD");
+  daySel.innerHTML = '<option value="">-- Day --</option>';
+  for(let d=1; d<=31; d++){ const val = String(d).padStart(2,'0'); daySel.innerHTML += `<option value="${val}">${val}</option>`; }
+  autoBindSave(daySel);
+  const monthSel = $("ThirdPP_DOB_MM");
+  monthSel.innerHTML = '<option value="">-- Month --</option>';
+  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  months.forEach((m,i)=>{ const val = String(i+1).padStart(2,'0'); monthSel.innerHTML += `<option value="${val}">${val} - ${m}</option>`; });
+  autoBindSave(monthSel);
+})();
+
+/* Section C: show/hide + uppercase */
+function updateThirdPPUI(){
+  $("thirdPP_ic_wrap").style.display = $("ThirdPP_Yes").checked ? "block" : "none";
+  $("thirdPP_fields").style.display = ($("ThirdPP_Yes").checked && $("ThirdPP_SubmittedNRIC").checked) ? "block" : "none";
+}
+document.querySelectorAll("#sectionC input[type=text], #sectionC input[type=tel], #sectionC input[type=number]").forEach(inp=>{
+  if (inp.id.toLowerCase().includes("email")) return;
+  inp.addEventListener("input", ()=>{ inp.value = inp.value.toUpperCase(); saveElValue(inp); });
+});
+["ThirdPP_Yes","ThirdPP_SubmittedNRIC"].forEach(id=>{
+  const el = $(id);
+  autoBindSave(el);
+  el.addEventListener("change", ()=>{
+    updateThirdPPUI(); saveElValue(el); updatePayorSectionUI();
+  });
+});
+updateThirdPPUI();
+
+/* Section E: Meta fields + states/dates */
+const signOwnerName = $("Sign_OwnerName");
+const sameAsCardOwner = $("SameAsCardOwner");
+const cardName = $("CardName");
+sameAsCardOwner.addEventListener("change", () => {
+  if (sameAsCardOwner.checked) { signOwnerName.value = cardName.value.toUpperCase(); signOwnerName.disabled = true; }
+  else { signOwnerName.value = ""; signOwnerName.disabled = false; }
+  saveElValue(signOwnerName);
+});
+cardName.addEventListener("input", () => {
+  if (sameAsCardOwner.checked) { signOwnerName.value = cardName.value.toUpperCase(); saveElValue(signOwnerName); }
+});
+(function populateStates() {
+  const states = ["SELANGOR", "K.LUMPUR", "MELAKA", "N.SEMBILAN", "JOHOR", "PERAK", "KEDAH", "PULAU PINANG", "KELANTAN", "TERENGGANU", "PAHANG", "PERLIS", "SABAH", "SARAWAK"];
+  const select = $("Sign_State_Select");
+  states.forEach(s => { const o = document.createElement("option"); o.value = s; o.textContent = s; select.appendChild(o); });
+  autoBindSave(select);
+})();
+(function populateSignDate() {
+  const dateSelect = $("Sign_Date_Select");
+  dateSelect.innerHTML = '<option value="">-- DD --</option>';
+  for (let d = 1; d <= 31; d++) { const val = String(d).padStart(2, '0'); dateSelect.innerHTML += `<option value="${val}">${val}</option>`; }
+  autoBindSave(dateSelect);
+ const monthSelect = $("Sign_Month_Select");
+monthSelect.innerHTML = '<option value="">-- MM --</option>';
+const months = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December"];
+months.forEach(m => {
+  monthSelect.innerHTML += `<option value="${m.toUpperCase()}">${m.toUpperCase()}</option>`;
+});
+autoBindSave(monthSelect);
+  const yearSelect = $("Sign_Year_Select");
+  yearSelect.innerHTML = '<option value="">-- YYYY --</option>';
+  for (let y = 2025; y <= 2030; y++) { yearSelect.innerHTML = yearSelect.innerHTML + `<option value="${y}">${y}</option>`; }
+  autoBindSave(yearSelect);
+})();
+
+/* Payor section visibility + linking */
+const payorSection = $("payorSignatureSection");
+const thirdPPYes = $("ThirdPP_Yes");
+const thirdPPSubmittedNRIC = $("ThirdPP_SubmittedNRIC");
+const signPayorName = $("Sign_PayorName");
+const sameAsThirdPartyPayorName = $("SameAsThirdPartyPayorName");
+const thirdPPName = $("ThirdPP_Name");
+const signPayorNIRC = $("Sign_PayorNIRC");
+const sameAsThirdPartyPayorNIRC = $("SameAsThirdPartyPayorNIRC");
+const thirdPPNIRC = $("ThirdPP_NIRC");
+function updatePayorSectionUI() {
+  const isPayorVisible = thirdPPYes.checked && thirdPPSubmittedNRIC.checked;
+  payorSection.style.display = isPayorVisible ? "block" : "none";
+}
+thirdPPYes.addEventListener("change", updatePayorSectionUI);
+thirdPPSubmittedNRIC.addEventListener("change", updatePayorSectionUI);
+sameAsThirdPartyPayorName.addEventListener("change", () => {
+  if (sameAsThirdPartyPayorName.checked) { signPayorName.value = thirdPPName.value.toUpperCase(); signPayorName.disabled = true; }
+  else { signPayorName.value = ""; signPayorName.disabled = false; }
+  saveElValue(signPayorName);
+});
+sameAsThirdPartyPayorNIRC.addEventListener("change", () => {
+  if (sameAsThirdPartyPayorNIRC.checked) { signPayorNIRC.value = thirdPPNIRC.value; signPayorNIRC.disabled = true; }
+  else { signPayorNIRC.value = ""; signPayorNIRC.disabled = false; }
+  saveElValue(signPayorNIRC);
+});
+thirdPPName.addEventListener("input", () => {
+  if (sameAsThirdPartyPayorName.checked) { signPayorName.value = thirdPPName.value.toUpperCase(); saveElValue(signPayorName); }
+});
+thirdPPNIRC.addEventListener("input", () => {
+  if (sameAsThirdPartyPayorNIRC.checked) { signPayorNIRC.value = thirdPPNIRC.value; saveElValue(signPayorNIRC); }
+});
+updatePayorSectionUI();
 
 /* ---------- SIGNATURE MODAL LOGIC ---------- */
 let sigTarget = null;
@@ -581,7 +744,7 @@ function resizeCanvas() {
 
   // If modal is open and sigTarget exists, prefer the stored PNG for that role.
   // Otherwise fall back to the current canvas content.
-  const storageKey = sigTarget ? "epp_sig_" + sigTarget : null;
+  const storageKey = sigTarget ? "cc_sig_" + sigTarget : null;
   const savedFromStorage = storageKey ? localStorage.getItem(storageKey) : null;
   const sourceData = savedFromStorage || sigCanvas.toDataURL();
 
@@ -622,10 +785,10 @@ window.addEventListener("resize", resizeCanvas);
 function openSig(target) {
   sigTarget = target;
 
-  if (target === "cardholder") {
-    $("sigModalTitle").textContent = "Sign: Cardholder";
+  if (target === "owner") {
+    $("sigModalTitle").textContent = "Sign: Policy Owner";
   } else {
-    $("sigModalTitle").textContent = "Sign: Witness";
+    $("sigModalTitle").textContent = "Sign: Payor";
   }
 
   sigModal.style.display = "block";
@@ -641,7 +804,7 @@ $("sigClear").addEventListener("click", ()=>{
 
   if (sigTarget) {
     // remove saved signature
-    localStorage.removeItem("epp_sig_" + sigTarget);
+    localStorage.removeItem("cc_sig_" + sigTarget);
 
     // reset preview back to "Tap to Sign (…) "
     $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${
@@ -663,14 +826,14 @@ $("sigDone").addEventListener("click", () => {
   // Always take snapshot from the canvas (even if unchanged)
   const dataURL = sigCanvas.toDataURL("image/png");
 
-  if (signaturePad.isEmpty() && !localStorage.getItem("epp_sig_" + sigTarget)) {
+  if (signaturePad.isEmpty() && !localStorage.getItem("cc_sig_" + sigTarget)) {
     // If no strokes and nothing saved before → treat as empty
     const label = sigTarget.charAt(0).toUpperCase() + sigTarget.slice(1);
     $("preview_" + sigTarget).innerHTML = `<span>Tap to Sign (${label})</span>`;
-    localStorage.removeItem("epp_sig_" + sigTarget);
+    localStorage.removeItem("cc_sig_" + sigTarget);
   } else {
     // Save whatever is currently visible on the canvas
-    localStorage.setItem("epp_sig_" + sigTarget, dataURL);
+    localStorage.setItem("cc_sig_" + sigTarget, dataURL);
     $("preview_" + sigTarget).innerHTML = `<img alt="Signature ${sigTarget}" src="${dataURL}">`;
   }
 
@@ -680,114 +843,67 @@ $("sigDone").addEventListener("click", () => {
 
 
 /* Clear preview buttons + restore previews on load */
-$("clearPreviewCardholder").addEventListener("click", ()=>{
-  localStorage.removeItem("epp_sig_cardholder");
-  $("preview_cardholder").innerHTML = `<span>Tap to Sign 
-  (Cardholder)</span>`;
+$("clearPreviewOwner").addEventListener("click", ()=>{
+  localStorage.removeItem("cc_sig_owner");
+  $("preview_owner").innerHTML = `<span>Tap to Sign (Owner)</span>`;
 
   // also clear from canvas if modal currently showing owner
-  if (sigTarget === "cardholder") signaturePad.clear();
+  if (sigTarget === "owner") signaturePad.clear();
 });
 
-$("clearPreviewWitness").addEventListener("click", ()=>{
-  localStorage.removeItem("epp_sig_witness");
-  $("preview_witness").innerHTML = `<span>Tap to Sign (Witness)</span>`;
+$("clearPreviewPayor").addEventListener("click", ()=>{
+  localStorage.removeItem("cc_sig_payor");
+  $("preview_payor").innerHTML = `<span>Tap to Sign (Payor)</span>`;
 
-  if (sigTarget === "witness") signaturePad.clear();
+  if (sigTarget === "payor") signaturePad.clear();
 });
 
 
 window.addEventListener("DOMContentLoaded", ()=>{
-  ["cardholder","witness"].forEach(role=>{
-    const saved = localStorage.getItem("epp_sig_"+role);
+  ["owner","payor"].forEach(role=>{
+    const saved = localStorage.getItem("cc_sig_"+role);
     if(saved){
       $("preview_"+role).innerHTML = `<img alt="Signature ${role}" src="${saved}">`;
     }
   });
 });
 
-/* ---------- Signed date selects (same as amendment filler) ---------- */
-(function populateDateSelectors(){
-  const daySel = $("Signed_Day");
-  for(let i=1;i<=31;i++) daySel.innerHTML += `<option>${i}</option>`;
-  const monthSel = $("Signed_Month");
-  const months = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
-  months.forEach(m=> monthSel.innerHTML += `<option>${m}</option>`);
-  const yearSel = $("Signed_Year");
-  const current = new Date().getFullYear();
-  for(let y=current; y<=2030; y++) yearSel.innerHTML += `<option>${y}</option>`;
+/* ---------- Restore on load ---------- */
+(function restoreAll(){
+  document.querySelectorAll("input,select,textarea").forEach(el=> {
+    if(el.id !== "Onetimecharge_amt" && el.name !== "onetime_charge_option") {
+      autoBindSave(el);
+    }
+  });
+  restoreOneTimeState(); updateThirdPPUI(); updatePayorSectionUI();
+
+  policiesContainer.innerHTML = ""; policyCount = 0;
+  const savedCount = Math.max(1, Math.min(parseInt(localStorage.getItem("policyCount")) || 1, MAX_POLICIES));
+  for(let i=1;i<=savedCount;i++){ addPolicy(); }
+
+  const cn = $("CardName"); if(cn.value) cn.value = cn.value.toUpperCase();
 })();
 
-/* ---------- localStorage autosave + restore (updated) ---------- */
-const saveStatusEl = $("saveStatus");
-let saveTimer = null;
-function showSaveStatus(){
-  saveStatusEl.style.opacity = 1;
-  clearTimeout(saveStatusEl._timer);
-  saveStatusEl._timer = setTimeout(()=> saveStatusEl.style.opacity = 0, 1200);
-}
-
-/* Debounced save wrapper */
-function debounceSave(fn, wait=150){
-  let t;
-  return function(...args){ clearTimeout(t); t = setTimeout(()=> fn.apply(this,args), wait); };
-}
-
-/* Save an element's value to localStorage (for inputs & selects) */
-function saveElValue(el){
-  if(!el || !el.id) return;
-  if(el.type === 'checkbox'){
-      localStorage.setItem(el.id, el.checked);
-  } else {
-      localStorage.setItem(el.id, el.value);
+/* ---------- PDF helpers ---------- */
+function writeCardToPdf(form){
+  const digits = [ $("CardNo_1"), $("CardNo_2"), $("CardNo_3"), $("CardNo_4") ];
+  const combined = digits.map(d => (d.value||"").padEnd(4,' ')).join('').slice(0,16);
+  for(let i=0;i<16;i++){
+    const field = `CardNo_${i+1}`;
+    const ch = combined[i] && combined[i] !== ' ' ? combined[i] : "";
+    safeSetText(form, field, ch);
   }
-  showSaveStatus();
+}
+function applyRelationship(form, n){
+  const dd = document.getElementById(`Relationship${n}`);
+  const val = (dd && dd.value) ? dd.value : "";
+  const map = { "OWNSELF":"Ownself","SPOUSE":"spouse","CHILDREN":"children","PARENT":"Parent","GRANDPARENT":"Grandparent","SIBLING":"Sibling","COMPANY":"Company" };
+  const all = Object.values(map);
+  all.forEach(name => safeCheck(form, `Relationship${n}_${name}`, false));
+  if(val && map[val]) safeCheck(form, `Relationship${n}_${map[val]}`, true);
 }
 
-/* Initialize inputs/selects/textarea: restore and attach listeners */
-document.querySelectorAll("input,select,textarea").forEach(el=>{
-  // restore
-  const saved = localStorage.getItem(el.id);
-  if(saved !== null) {
-    if (el.type === 'checkbox') {
-        el.checked = (saved === 'true');
-    } else {
-        el.value = saved;
-    }
-  }
-
-  // attach listener
-  el.addEventListener("input", ()=>{
-    // uppercase enforcement for section1, section5, and policy owner name inputs
-    if( el.closest(".section1") || el.closest(".section5") || (el.closest(".policy") && el.id.includes("_OwnerName")) ){
-      if(el.type !== "number" && el.inputMode !== "numeric" && el.tagName.toLowerCase() !== 'select'){
-        el.value = el.value.toUpperCase();
-      }
-    }
-    // save debounced
-    debounceSave(()=> saveElValue(el), 120)();
-  });
-
-  if (el.type === 'checkbox') {
-    el.addEventListener('change', () => {
-      localStorage.setItem(el.id, el.checked);
-      showSaveStatus();
-    });
-  }
-});
-
-/* ---------- Fill PDF ---------- */
-function canvasIsBlank(ctx, canvas){
-  try {
-    const w = Math.min(10, canvas.width);
-    const data = ctx.getImageData(0,0,w,1).data;
-    for (let i=0;i<data.length;i+=4){
-      if (!(data[i]===255 && data[i+1]===255 && data[i+2]===255)) return false;
-    }
-  } catch(e){ return false; }
-  return true;
-}
-
+/* ---------- Generate PDF ---------- */
 async function fillPDF(){
   try {
     $("generate").disabled = true;
@@ -797,88 +913,74 @@ async function fillPDF(){
     const bytes = await res.arrayBuffer();
     const pdfDoc = await PDFLib.PDFDocument.load(bytes);
     const form = pdfDoc.getForm();
+
+    // CARD DETAILS
+    safeCheck(form, "CC_Tick", $("CC_Tick").checked);
+    safeCheck(form, "DebitC_Tick", $("DebitC_Tick").checked);
+    safeSetText(form, "CardName", $("CardName").value || "");
+    writeCardToPdf(form);
+
+    // Expiry split
+    const mm = ($("CardExpry_M_Select").value || "").padStart(2,' ');
+    const yy = ($("CardExpry_Y_Select").value || "").padStart(2,' ');
+    safeSetText(form, "CardExpry_M1", mm[0] || "");
+    safeSetText(form, "CardExpry_M2", mm[1] || "");
+    safeSetText(form, "CardExpry_Y1", yy[0] || "");
+    safeSetText(form, "CardExpry_Y2", yy[1] || "");
+
+    safeSetText(form, "CardBank", $("CardBank_Select").value || "");
+
+    // BRAND
+    safeCheck(form, "Visa_Tick", $("Visa_Tick").checked);
+    safeCheck(form, "Master_Tick", $("Master_Tick").checked);
+
+    // SIGN META
+    safeSetText(form, "Sign_OwnerName", $("Sign_OwnerName").value.toUpperCase() || "");
+    safeSetText(form, "Sign_OwnerNIRC", $("Sign_OwnerNIRC").value || "");
+    safeSetText(form, "Sign_State", $("Sign_State_Select").value || "");
+    safeSetText(form, "Sign_Date", $("Sign_Date_Select").value || "");
+    safeSetText(form, "Sign_Month", $("Sign_Month_Select").value || "");
+    safeSetText(form, "Sign_Year", $("Sign_Year_Select").value || "");
+    safeSetText(form, "Sign_PayorName", $("Sign_PayorName").value.toUpperCase() || "");
+    safeSetText(form, "Sign_PayorNIRC", $("Sign_PayorNIRC").value || "");
+
+    // THIRD PARTY SECTION
+    safeCheck(form, "ThirdPP_Yes", $("ThirdPP_Yes").checked);
+    safeCheck(form, "ThirdPP_SubmittedNRIC", $("ThirdPP_Yes").checked && $("ThirdPP_SubmittedNRIC").checked);
+    if ($("ThirdPP_Yes").checked && $("ThirdPP_SubmittedNRIC").checked) {
+      [
+        "ThirdPP_Name","ThirdPP_NIRC","ThirdPP_Nationality","ThirdPP_CorrespAdd_Line1",
+        "ThirdPP_CorrespAdd_Line2","ThirdPP_CorrrepAdd_Postcode","ThirdPP_CorrespAdd_Country",
+        "ThirdPP_Email","ThirdPP_Phone","ThirdPP_Occupation","ThirdPP_Employer",
+        "ThirdPP_NatureBusiness","ThirdPP_Income",
+        "ThirdPP_SourceFund_Others_Write","ThirdPP_SourceWealth_Others_Write"
+      ].forEach(id=> safeSetText(form, id, $(id).value || ""));
+      safeSetText(form, "ThirdPP_DOB_DD", $("ThirdPP_DOB_DD").value || "");
+      safeSetText(form, "ThirdPP_DOB_MM", $("ThirdPP_DOB_MM").value || "");
+      safeSetText(form, "ThirdPP_DOB_YYYY", $("ThirdPP_DOB_YYYY").value || "");
+      [
+        "ThirdPP_SourceFund_Self","ThirdPP_SourceFund_Parent","ThirdPP_SourceFund_Spouse","ThirdPP_SourceFund_Others",
+        "ThirdPP_SourceWealth_EmployBus","ThirdPP_SourceWealth_Invest","ThirdPP_SourceWealth_Inherit","ThirdPP_SourceWealth_Savings",
+        "ThirdPP_SourceWealth_Parents","ThirdPP_SourceWealth_Spouse","ThirdPP_SourceWealth_Others"
+      ].forEach(id=> safeCheck(form, id, $(id).checked));
+    }
+
+    // PDPA
+    safeCheck(form, "PDPA", $("PDPA").checked);
+
+   /* --------- SIGNATURE IMAGE EMBEDDING (embedPng + drawImage) --------- */
     const pages = pdfDoc.getPages();
-    const page = pages[1];
+    const pageIndex = Math.min(2, pages.length - 1); // Page 3 (index 2); adjust if needed
+    const page = pages[pageIndex];
 
-    // Section 1
-    safeSetText(form, "Cardholder_Name", $("Cardholder_Name").value || "");
-    safeSetText(form, "Cardholder_MailingAdd_Line1", $("Cardholder_MailingAdd_Line1").value || "");
-    safeSetText(form, "Cardholder_MailingAdd_Line2", $("Cardholder_MailingAdd_Line2").value || "");
-    safeSetText(form, "Cardholder_NIRC", $("Cardholder_NIRC").value || "");
-    safeSetText(form, "Cardholder_HomeNo", $("Cardholder_HomeNo").value || "");
-    safeSetText(form, "Cardholder_MobileNo", $("Cardholder_MobileNo").value || "");
-
-    // CC combined
-    const ccCombined = ccDigits.map(d=>d.value.padEnd(4,' ').slice(0,4)).join('').slice(0,16).replace(/\s/g,'');
-    safeSetText(form, "CC_Number", ccCombined);
-
-    // UPDATED PDF-FILL LOGIC FOR CARD EXPIRY
-    const mm = document.getElementById("CC_MM_Select").value;
-    const yy = document.getElementById("CC_YY_Select").value;
-    let expiry = "";
-    if (mm && yy) {
-      const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
-      const monthIndex = parseInt(mm, 10) - 1;
-      const fullYear = `20${yy}`;
-      expiry = `${monthNames[monthIndex]} ${fullYear}`;
-    }
-    safeSetText(form, "CC_Expirydate", expiry);
-
-    // Banks (checkboxes)
-    const bankFields = ["CC_Bank_UOB","CC_Bank_CIMB","CC_Bank_HLB","CC_Bank_PBB","CC_Bank_MBB","CC_Bank_HSBC","CC_Bank_Alliance","CC_Bank_StanChart"];
-    bankFields.forEach(b => safeCheck(form, b, false));
-    const bankSel = $("CC_Bank_Select").value;
-    if (bankSel) safeCheck(form, bankSel, true);
-
-    // Card type
-    safeCheck(form, "Visa", false); safeCheck(form, "Master", false);
-    const cardType = $("CardType_Select").value; if (cardType) safeCheck(form, cardType, true);
-
-    // EPP Term
-    safeCheck(form, "EPPTerm_6Months", false); safeCheck(form, "EPPTerm_12Months", false);
-    const term = $("EPPTerm_Select").value; if (term) safeCheck(form, term, true);
-
-    // After EPP frequency
-    const afterFields = ["AfterEPP_Annually","AfterEPP_Halfyearly","AfterEPP_Quarterly","AfterEPP_Monthly"];
-    afterFields.forEach(a => safeCheck(form, a, false));
-    const afterSel = $("AfterEPP_Select").value; if (afterSel) safeCheck(form, afterSel, true);
-
-    // policies rows
-    const rows = Array.from(policiesContainer.querySelectorAll(".policy"));
-    rows.forEach((row, idx) => {
-      const i = idx+1;
-      const pNo = row.querySelector(`#Paymentfor_PolicyNo${i}`)?.value || row.querySelector(`[id^="Paymentfor_PolicyNo"]`)?.value || "";
-      const owner = row.querySelector(`#Paymentfor_PolicyNo${i}_OwnerName`)?.value || "";
-      const rel = row.querySelector(`#Paymentfor_PolicyNo${i}_Relationship`)?.value || "";
-      const firstPrem = row.querySelector(`#Paymentfor_PolicyNo${i}_FirstPremium`)?.value || "";
-      safeSetText(form, `Paymentfor_PolicyNo${i}`, pNo);
-      safeSetText(form, `Paymentfor_PolicyNo${i}_OwnerName`, owner);
-      safeSetText(form, `Paymentfor_PolicyNo${i}_Relationship`, rel);
-      safeSetText(form, `Paymentfor_PolicyNo${i}_FirstPremium`, firstPrem);
-    });
-    for(let i = rows.length+1; i<=MAX_POLICIES; i++){
-      safeSetText(form, `Paymentfor_PolicyNo${i}`, "");
-      safeSetText(form, `Paymentfor_PolicyNo${i}_OwnerName`, "");
-      safeSetText(form, `Paymentfor_PolicyNo${i}_Relationship`, "");
-      safeSetText(form, `Paymentfor_PolicyNo${i}_FirstPremium`, "");
-    }
-
-    // Section 5
-    safeSetText(form, "Signed_State", $("Signed_State").value || "");
-    safeSetText(form, "Signed_Month", $("Signed_Month").value || "");
-    safeSetText(form, "Signed_Day", $("Signed_Day").value || "");
-    safeSetText(form, "Signed_Year", $("Signed_Year").value || "");
-    safeSetText(form, "Witness_Name", $("Witness_Name").value || "");
-    safeSetText(form, "Witness_NRIC", $("Witness_NRIC").value || "");
-
-    // Cardholder signature
-const sigCardholder = localStorage.getItem("epp_sig_cardholder");
-if (sigCardholder) {
+// Owner signature
+const sigOwner = localStorage.getItem("cc_sig_owner");
+if (sigOwner) {
   try {
-    const imgCardholder = await pdfDoc.embedPng(sigCardholder);
-    const { width, height } = imgCardholder.size();
+    const imgOwner = await pdfDoc.embedPng(sigOwner);
+    const { width, height } = imgOwner.size();
 
-    const previewEl = document.getElementById("preview_cardholder");
+    const previewEl = document.getElementById("preview_owner");
     const boxW = previewEl.offsetWidth;
     const boxH = previewEl.offsetHeight;
 
@@ -886,14 +988,14 @@ if (sigCardholder) {
     let drawW = width * scale;
     let drawH = height * scale;
 
-    const factor = 0.40;    // scale
+    const factor = 0.40;    // 40% scale
     const posX = 50;         // X position on PDF
-    const posY = 100;        // Y position on PDF
+    const posY = 490;        // Y position on PDF
 
     drawW *= factor;
     drawH *= factor;
 
-    page.drawImage(imgCardholder, {
+    page.drawImage(imgOwner, {
       x: posX,
       y: posY,
       width: drawW,
@@ -904,14 +1006,14 @@ if (sigCardholder) {
   }
 }
 
-// Witness signature
-const sigWitness = localStorage.getItem("epp_sig_witness");
-if (sigWitness) {
+// Payor signature
+const sigPayor = localStorage.getItem("cc_sig_payor");
+if (sigPayor) {
   try {
-    const imgWitness = await pdfDoc.embedPng(sigWitness);
-    const { width, height } = imgWitness.size();
+    const imgPayor = await pdfDoc.embedPng(sigPayor);
+    const { width, height } = imgPayor.size();
 
-    const previewEl = document.getElementById("preview_witness");
+    const previewEl = document.getElementById("preview_payor");
     const boxW = previewEl.offsetWidth;
     const boxH = previewEl.offsetHeight;
 
@@ -919,14 +1021,14 @@ if (sigWitness) {
     let drawW = width * scale;
     let drawH = height * scale;
 
-    const factor = 0.40;    // scale
+    const factor = 0.40;    // 45% scale
     const posX = 370;         // X position on PDF
-    const posY = 100;        // Y position on PDF
+    const posY = 490;        // Y position on PDF
 
     drawW *= factor;
     drawH *= factor;
 
-    page.drawImage(imgWitness, {
+    page.drawImage(imgPayor, {
       x: posX,
       y: posY,
       width: drawW,
@@ -936,83 +1038,90 @@ if (sigWitness) {
     console.error(e);
   }
 }
-
-     
+    
     // Flatten form fields before saving
     form.flatten();
-
+    
     // Save & download
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = "Filled_ZeroInterest_EPP.pdf"; document.body.appendChild(a); a.click(); a.remove();
+    const a = document.createElement("a"); a.href = url; a.download = "Filled_Credit_Card_Form.pdf"; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(()=> URL.revokeObjectURL(url), 2500);
 
-  } catch (err) {
-    console.error(err);
+  } catch(err){
     alert("PDF generation failed: " + (err.message || err));
+    console.error(err);
   } finally {
     $("generate").disabled = false;
   }
 }
-
 /* ---------- Reset All ---------- */
-function resetAll(){ 
-  if (!confirm("Are you sure you want to reset the form? All saved data will be cleared.")) {
-    return;
-  }
-  document.querySelectorAll("input").forEach(inp=>{ if(inp.type==='checkbox' || inp.type==='radio') inp.checked=false; else inp.value=''; });
-  document.querySelectorAll("select").forEach(s=> s.selectedIndex = 0);
-  localStorage.clear();
-  // remove policy nodes and recreate
-  policiesContainer.innerHTML = ""; policyCount = 0; addPolicyBtn.disabled=false; addPolicy();
-  // restore previews empty
-  $("preview_cardholder").innerHTML = `<span>Tap to Sign (Cardholder)</span>`;
-  $("preview_witness").innerHTML = `<span>Tap to Sign (Witness)</span>`;
+function resetAll(){
+  const keys = Object.keys(localStorage);
+  keys.forEach(k=>{
+    if(
+      k.startsWith("PolicyNo") || k.startsWith("Insured") || k.startsWith("Relationship") ||
+      ["policyCount","CCAgree","Onetimecharge_tick","onetime_charge_option",
+       "CardName","CardNo_1","CardNo_2","CardNo_3","CardNo_4","CardExpry_M_Select","CardExpry_Y_Select","CardBank_Select",
+       "CC_Tick","DebitC_Tick", "SameAsCardOwner", "Sign_OwnerName", "Sign_OwnerNIRC", "Sign_State_Select", "Sign_Date_Select", "Sign_Month_Select", "Sign_Year_Select",
+       "ThirdPP_Yes","ThirdPP_SubmittedNRIC", "ThirdPP_Name","ThirdPP_NIRC", "ThirdPP_Nationality", "ThirdPP_CorrespAdd_Line1", "ThirdPP_CorrespAdd_Line2",
+       "ThirdPP_CorrrepAdd_Postcode", "ThirdPP_CorrespAdd_Country", "ThirdPP_Email", "ThirdPP_Phone", "ThirdPP_Occupation", "ThirdPP_Employer",
+       "ThirdPP_NatureBusiness", "ThirdPP_Income", "ThirdPP_DOB_DD", "ThirdPP_DOB_MM", "ThirdPP_DOB_YYYY",
+       "ThirdPP_SourceFund_Self","ThirdPP_SourceFund_Parent","ThirdPP_SourceFund_Spouse","ThirdPP_SourceFund_Others","ThirdPP_SourceFund_Others_Write",
+       "ThirdPP_SourceWealth_EmployBus","ThirdPP_SourceWealth_Invest","ThirdPP_SourceWealth_Inherit","ThirdPP_SourceWealth_Savings",
+       "ThirdPP_SourceWealth_Parents","ThirdPP_SourceWealth_Spouse","ThirdPP_SourceWealth_Others","ThirdPP_SourceWealth_Others_Write",
+       "Sign_PayorName", "Sign_PayorNIRC", "SameAsThirdPartyPayorName", "SameAsThirdPartyPayorNIRC",
+       "PDPA",
+       // signatures
+       "cc_sig_owner", "cc_sig_payor"
+      ].includes(k)
+    ){
+      localStorage.removeItem(k);
+    }
+  });
 
+  document.querySelectorAll("input").forEach(inp=>{
+    if (inp.type === "checkbox" || inp.type === "radio") inp.checked = false;
+    else inp.value = "";
+    if(inp.id === "Onetimecharge_amt") inp.disabled = true;
+  });
+  document.querySelectorAll("select").forEach(s=> s.selectedIndex = 0);
+
+  // Clear signature previews
+  $("preview_owner").innerHTML = `<span>Tap to Sign (Owner)</span>`;
+  $("preview_payor").innerHTML = `<span>Tap to Sign (Payor)</span>`;
+
+  // Rebuild policies
+  policiesContainer.innerHTML = "";
+  policyCount = 0;
+  addPolicyBtn.disabled = false;
+  addPolicy();
+
+  updateOneTimeUI();
+  updateThirdPPUI();
+  updatePayorSectionUI();
+  showSaveStatus();
 }
 
-/* ---------- Wire events ---------- */
+/* ---------- Wire buttons ---------- */
 $("generate").addEventListener("click", fillPDF);
 $("resetAll").addEventListener("click", resetAll);
 
-/* ---------- Restore saved form values on load ---------- */
-(function restoreSavedValues(){
-  document.querySelectorAll("input,select,textarea").forEach(el=>{
-    const saved = localStorage.getItem(el.id);
-    if(saved !== null) {
-      if (el.type === 'checkbox') {
-        el.checked = (saved === 'true');
-      } else {
-        el.value = saved;
-      }
-    }
-  });
-  // Restore dynamic policy entries
-  let savedPolicyCount = parseInt(localStorage.getItem('policyCount')) || 1;
-  policiesContainer.innerHTML = "";
-  policyCount = 0;
-  for(let i=1; i<=savedPolicyCount; i++){
-      addPolicy();
+  // Show button when user scrolls down
+window.addEventListener("scroll", () => {
+  const btn = document.getElementById("scrollTopBtn");
+  if (document.documentElement.scrollTop > 200 || document.body.scrollTop > 200) {
+    btn.classList.add("show");
+  } else {
+    btn.classList.remove("show");
   }
-  
- function restoreSignaturePreviews(){
-  ["cardholder","witness"].forEach(role=>{
-    const saved = localStorage.getItem("epp_sig_"+role);
-    const el = document.getElementById("preview_" + role);
-    if (saved && el) {
-      el.innerHTML = `<img alt="Signature ${role}" src="${saved}">`;
-    } else if (el) {
-      const label = role.charAt(0).toUpperCase() + role.slice(1);
-      el.innerHTML = `<span>Tap to Sign (${label})</span>`;
-    }
-  });
+});
+
+// Smooth scroll to top
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
-
-
-/* ---------- Small nicety: show Save indicator when localStorage is updated by other code ---------- */
-window.addEventListener('storage', ()=> showSaveStatus());
-
 </script>
 </body>
 </html>
