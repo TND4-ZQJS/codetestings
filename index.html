@@ -556,6 +556,20 @@ function renumberPolicies(){
 }
 addPolicyBtn.addEventListener("click", addPolicy);
 
+// INIT: Ensure at least 1 policy shows on load 
+window.addEventListener("DOMContentLoaded", () => {
+  const savedCount = parseInt(localStorage.getItem("policyCount")) || 0;
+  if (savedCount > 0) {
+    // Restore saved entries
+    for (let i = 1; i <= savedCount; i++) {
+      addPolicy();
+    }
+  } else {
+    // First-time load → start with one blank entry
+    addPolicy();
+  }
+});
+
 /* ---------- CARD details enhancements ---------- */
 $("CardName").addEventListener("input", (e)=>{ e.target.value = e.target.value.toUpperCase(); saveElValue(e.target); });
 const cardDigits = [ $("CardNo_1"), $("CardNo_2"), $("CardNo_3"), $("CardNo_4") ];
