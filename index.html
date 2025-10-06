@@ -480,13 +480,21 @@ function createPolicyEntry(index){
   const si = localStorage.getItem("Insured"+index); if(si!==null) insured.value = si.toUpperCase();
   const sr = localStorage.getItem("Relationship"+index); if(sr!==null) wrap.querySelector("#Relationship"+index).value = sr;
 
-  wrap.querySelector(".remove-btn").addEventListener("click", ()=>{
+  wrap.querySelector(".remove-btn").addEventListener("click", () => {
     policiesContainer.removeChild(wrap);
     policyCount = Math.max(0, policyCount - 1);
     addPolicyBtn.disabled = policyCount >= MAX_POLICIES;
-    renumberPolicies(); showSaveStatus();
+    renumberPolicies();
+    showSaveStatus();
+
+    // ✅ Ensure at least 1 policy exists
+    if (policyCount === 0) {
+      addPolicy();
+    }
   });
+  
   return wrap;
+}
 }
 function addPolicy(){
   if(policyCount >= MAX_POLICIES) return;
