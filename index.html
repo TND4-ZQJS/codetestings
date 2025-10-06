@@ -1130,6 +1130,20 @@ window.addEventListener("scroll", () => {
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+  const savedCount = parseInt(localStorage.getItem("policyCount")) || 0;
+
+  if (savedCount > 0) {
+    // Restore from saved policies
+    for (let i = 1; i <= savedCount; i++) {
+      addPolicy();
+    }
+  } else {
+    // ✅ Ensure at least one policy appears initially
+    addPolicy();
+  }
+});
 </script>
 </body>
 </html>
